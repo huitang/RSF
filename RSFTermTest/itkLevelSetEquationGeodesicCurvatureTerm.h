@@ -1,0 +1,146 @@
+/*=========================================================================
+ *
+ *  Copyright Insight Software Consortium
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0.txt
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *=========================================================================*/
+
+#ifndef __itkLevelSetEquationGeodesicCurvatureTerm_h
+#define __itkLevelSetEquationGeodesicCurvatureTerm_h
+
+#include "itkLevelSetEquationTermBase.h"
+#include "itkZeroFluxNeumannBoundaryCondition.h"
+#include "itkConstNeighborhoodIterator.h"
+#include "itkVector.h"
+#include "vnl/vnl_matrix_fixed.h"
+
+namespace itk
+{
+/**
+ *  \class LevelSetEquationGeodesicCurvatureTerm
+ *  \brief Derived class to represents a curvature term in the level-set evolution PDE
+ *
+ *  \tparam TInput Input Image Type
+ *  \tparam TLevelSetContainer Level set function container type
+ *  \ingroup ITKLevelSetsv4
+ */
+template< class TInput, // Input image or mesh
+          class TLevelSetContainer >
+class LevelSetEquationGeodesicCurvatureTerm :
+    public LevelSetEquationTermBase< TInput, TLevelSetContainer >
+{
+public:
+  typedef LevelSetEquationGeodesicCurvatureTerm         Self;
+  typedef SmartPointer< Self >                  Pointer;
+  typedef SmartPointer< const Self >            ConstPointer;
+  typedef LevelSetEquationTermBase< TInput, TLevelSetContainer >
+                                                Superclass;
+
+  /** Method for creation through object factory */
+  itkNewMacro( Self );
+
+  /** Run-time type information */
+  itkTypeMacro( LevelSetEquationGeodesicCurvatureTerm,
+                LevelSetEquationTermBase );
+
+  typedef typename Superclass::InputImageType     InputImageType;
+  typedef typename Superclass::InputImagePointer  InputImagePointer;
+  typedef typename Superclass::InputPixelType     InputPixelType;
+  typedef typename Superclass::InputPixelRealType InputPixelRealType;
+
+  typedef typename Superclass::LevelSetContainerType      LevelSetContainerType;
+  typedef typename Superclass::LevelSetContainerPointer   LevelSetContainerPointer;
+  typedef typename Superclass::LevelSetType               LevelSetType;
+  typedef typename Superclass::LevelSetPointer            LevelSetPointer;
+  typedef typename Superclass::LevelSetOutputPixelType    LevelSetOutputPixelType;
+  typedef typename Superclass::LevelSetOutputRealType     LevelSetOutputRealType;
+  typedef typename Superclass::LevelSetInputIndexType     LevelSetInputIndexType;
+  typedef typename Superclass::LevelSetGradientType       LevelSetGradientType;
+  typedef typename Superclass::LevelSetHessianType        LevelSetHessianType;
+  typedef typename Superclass::LevelSetIdentifierType     LevelSetIdentifierType;
+
+  typedef typename Superclass::HeavisideType         HeavisideType;
+  typedef typename Superclass::HeavisideConstPointer HeavisideConstPointer;
+
+  typedef typename Superclass::LevelSetDataType LevelSetDataType;
+
+  itkStaticConstMacro(ImageDimension, unsigned int, InputImageType::ImageDimension);
+
+  /** Neighborhood radius type */
+  typedef ZeroFluxNeumannBoundaryCondition< InputImageType > DefaultBoundaryConditionType;
+  typedef typename ConstNeighborhoodIterator< InputImageType >::RadiusType RadiusType;
+  typedef ConstNeighborhoodIterator< InputImageType, DefaultBoundaryConditionType > NeighborhoodType;
+
+  typedef Vector< LevelSetOutputRealType, itkGetStaticConstMacro(ImageDimension) > NeighborhoodScalesType;
+
+  /** Update the term parameter values at end of iteration */
+  virtual void Update();
+    virtual const InputImageType * GetPotentialImage() const
+  { return m_PotentialImage.GetPointer(); }
+  virtual void SetPotentialImage(const InputImageType *f)
+  {     
+	  m_PotentialImage=f;
+  
+  }
+  itkSetMacro( GeodesicCurvatureOn, InputPixelRealType );
+  itkGetMacro( GeodesicCurvatureOn, InputPixelRealType );
+   void GetCurrentHeavisideImage();
+
+  /** Initialize the parameters in the terms prior to an iteration */
+  virtual void InitializeParameters();
+
+  /** Initialize term parameters in the dense case by computing for each pixel location */
+  virtual void Initialize( const LevelSetInputIndexType& );
+
+  /** Supply updates at pixels to keep the term parameters always updated */
+  virtual void UpdatePixel( const LevelSetInputIndexType& iP,
+                            const LevelSetOutputRealType& oldValue,
+                            const LevelSetOutputRealType& newValue );
+  void GenerateImage(InputImagePointer ioImage);
+
+  itkSetMacro( StepForSavingIntermedialResult, InputPixelRealType );
+  itkGetMacro( StepForSavingIntermedialResult, InputPixelRealType );
+protected:
+  LevelSetEquationGeodesicCurvatureTerm();
+
+  virtual ~LevelSetEquationGeodesicCurvatureTerm();
+
+  /** Returns the term contribution for a given location iP, i.e.
+   *  \f$ \omega_i( p ) \f$. */
+  virtual LevelSetOutputRealType Value( const LevelSetInputIndexType& iP );
+
+  /** Returns the term contribution for a given location iP, i.e.
+   *  \f$ \omega_i( p ) \f$. */
+  virtual LevelSetOutputRealType Value( const LevelSetInputIndexType& iP, const LevelSetDataType& iData );
+
+  LevelSetOutputRealType  m_NeighborhoodScales[ImageDimension];
+  LevelSetOutputRealType m_StepForSavingIntermedialResult;
+
+private:
+	InputImagePointer     m_CurrentHeaviside;
+	InputImagePointer     m_CurrentLevelSet;
+  LevelSetEquationGeodesicCurvatureTerm( const Self& ); // purposely not implemented
+  typename InputImageType::ConstPointer m_PotentialImage;
+  InputPixelRealType m_GeodesicCurvatureOn;
+  InputPixelRealType currentIteration;
+  void operator = ( const Self& ); // purposely not implemented
+};
+
+}
+
+#ifndef ITK_MANUAL_INSTANTIATION
+#include "itkLevelSetEquationGeodesicCurvatureTerm.hxx"
+#endif
+
+#endif
