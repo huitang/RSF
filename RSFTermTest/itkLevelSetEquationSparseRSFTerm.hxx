@@ -50,68 +50,12 @@ void LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
 ::Update()
 {
   UpdateMeanImage();
-
- if (this->m_StepForSavingIntermedialResult>0&&(((int)this->currentIteration%(int)this->m_StepForSavingIntermedialResult)==0))
-  {
-    typedef itk::ImageFileWriter< InputImageType >     OutputWriterType;
-    typename OutputWriterType::Pointer writerHeaviside = OutputWriterType::New();
-    std::ostringstream filenameHS;
-    filenameHS << "Foreground" << currentIteration<<".mhd";
-    writerHeaviside->SetFileName(filenameHS.str().c_str());
-    //writer->SetInput( binary);
-    writerHeaviside->SetInput( m_ForegroundMeanImage);
-
-    try
-    {
-      writerHeaviside->Update();
-    }
-    catch ( itk::ExceptionObject& err )
-    {
-      std::cout << err << std::endl;
-    }
-    typename OutputWriterType::Pointer writerBack= OutputWriterType::New();
-    std::ostringstream filenameLS;
-    filenameLS << "Background" << currentIteration<<".mhd";
-    writerBack->SetFileName(filenameLS.str().c_str());
-    //writer->SetInput( binary);
-    writerBack->SetInput( m_BackgroundMeanImage);
-
-    try
-    {
-      writerBack->Update();
-    }
-    catch ( itk::ExceptionObject& err )
-    {
-      std::cout << err << std::endl;
-    }
-	typename OutputWriterType::Pointer writerLevelSet= OutputWriterType::New();
-	std::ostringstream filenameLevelSet;
-	filenameLevelSet << "LevelSet" << currentIteration<<".mhd";
-	writerLevelSet->SetFileName(filenameLevelSet.str().c_str());
-	//writer->SetInput( binary);
-	writerLevelSet->SetInput( m_CurrentLevelSet);
-
-	try
-	{
-		writerLevelSet->Update();
-	}
-	catch ( itk::ExceptionObject& err )
-	{
-		std::cout << err << std::endl;
-	}
-
-  }
-
-  //update m_TotalValueInternal m_TotalValueExternal m_TotalHInternal  m_TotalHExternal
-std::cout<<"current iteration: "<<currentIteration<<std::endl;
-currentIteration++;
 }
 
 template< class TInput, class TLevelSetContainer >
 void LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
 ::InitializeParameters()
 { 
-	currentIteration=0;
 this->m_BackgroundMeanImage= InputImageType::New();
 this->m_ForegroundMeanImage= InputImageType::New();
 this->m_CurrentHeaviside=InputImageType::New();
@@ -355,56 +299,35 @@ void LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
 
   GetCurrentHeavisideImage();
 
-  //timeinfo = localtime ( &rawtime );
-  //std::cout<< "Getting current levelset used: "<<std::endl;
-
   typename MultiplyImageType::Pointer multiplyImageWithHeavisideImage = MultiplyImageType::New();
   multiplyImageWithHeavisideImage->SetInput1(this->m_Input);
   multiplyImageWithHeavisideImage->SetInput2(this->m_CurrentHeaviside);
   multiplyImageWithHeavisideImage->Update();
-  //timeinfo = localtime ( &rawtime );
- // std::cout<< "Getting current foreground image done "<<std::endl;
 
   typename MultiplyImageType::Pointer multiplyImageWithHeavisideInverseImage = MultiplyImageType::New();
   multiplyImageWithHeavisideInverseImage->SetInput1(this->m_Input);
   multiplyImageWithHeavisideInverseImage->SetInput2(this->m_CurrentHeavisideInverse);
   multiplyImageWithHeavisideInverseImage->Update();
 
-  //timeinfo = localtime ( &rawtime );
- // std::cout<< "Getting current background image done "<<std::endl;
-
   typename GaussianBlurFilter::Pointer gaussianblurMultiplyImageWithHeavisideImage = GaussianBlurFilter::New();
   gaussianblurMultiplyImageWithHeavisideImage->SetInput(multiplyImageWithHeavisideImage->GetOutput());
   gaussianblurMultiplyImageWithHeavisideImage->SetVariance (this->m_GaussianBlurScale);
   gaussianblurMultiplyImageWithHeavisideImage->Update();
-
-  //timeinfo = localtime ( &rawtime );
-//  std::cout<< "Blur current foreground image done "<<std::endl;
 
   typename GaussianBlurFilter::Pointer gaussianblurMultiplyImageWithHeavisideInverseImage = GaussianBlurFilter::New();
   gaussianblurMultiplyImageWithHeavisideInverseImage->SetInput(multiplyImageWithHeavisideInverseImage->GetOutput());
   gaussianblurMultiplyImageWithHeavisideInverseImage->SetVariance (this->m_GaussianBlurScale);
   gaussianblurMultiplyImageWithHeavisideInverseImage->Update();
 
-  //timeinfo = localtime ( &rawtime );
-  //std::cout<< "Blur current background image done "<<std::endl;
-
   typename GaussianBlurFilter::Pointer gaussianblurHeaviside =GaussianBlurFilter::New();
   gaussianblurHeaviside->SetInput(this->m_CurrentHeaviside);
   gaussianblurHeaviside->SetVariance(this->m_GaussianBlurScale);
   gaussianblurHeaviside->Update();
 
-  //timeinfo = localtime ( &rawtime );
-  //std::cout<< "Blur current inside heaviside image: "<<std::endl;
-
   typename GaussianBlurFilter::Pointer gaussianblurHeavisideInverse =GaussianBlurFilter::New();
   gaussianblurHeavisideInverse->SetInput(this->m_CurrentHeavisideInverse);
   gaussianblurHeavisideInverse->SetVariance(this->m_GaussianBlurScale);
   gaussianblurHeavisideInverse->Update();
-
-  //timeinfo = localtime ( &rawtime );
-  //std::cout<< "Blur current outside heaviside image done "<<std::endl;
-
 
   typename DivideImageType::Pointer divideImageFore =  DivideImageType::New();
   divideImageFore->SetInput1(gaussianblurMultiplyImageWithHeavisideImage->GetOutput());
@@ -421,9 +344,6 @@ void LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
   this->m_ForegroundMeanImage->Graft( divideImageFore->GetOutput() );
   this->m_BackgroundMeanImage->Graft( divideImageBack->GetOutput() );
 
-  //timeinfo = localtime ( &rawtime );
-  //std::cout<< "Get current mean images done "<<std::endl;
-
   typename GaussianBlurFilter::Pointer blurForegroundMeanImage= GaussianBlurFilter::New();
   blurForegroundMeanImage->SetInput(this->m_ForegroundMeanImage);
   blurForegroundMeanImage->SetVariance(m_GaussianBlurScale);
@@ -431,33 +351,22 @@ void LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
 
   this->m_BluredForegroundMeanImage->Graft( blurForegroundMeanImage->GetOutput() );
 
-  //timeinfo = localtime ( &rawtime );
-  //std::cout<< "Blur current foreground mean image: "<<asctime (timeinfo)<< std::endl;
-
   typename GaussianBlurFilter::Pointer blurBackgroundMeanImage= GaussianBlurFilter::New();
   blurBackgroundMeanImage->SetInput(this->m_BackgroundMeanImage);
   blurBackgroundMeanImage->SetVariance(m_GaussianBlurScale);
   blurBackgroundMeanImage->Update();
   this->m_BluredBackgroundMeanImage->Graft( blurBackgroundMeanImage->GetOutput() );
 
-  //timeinfo = localtime ( &rawtime );
-  //std::cout<< "Blur current background mean image done "<<std::endl;
-
   typename MultiplyImageType::Pointer foregroundSquareMeanImage = MultiplyImageType::New();
   foregroundSquareMeanImage->SetInput1(this->m_ForegroundMeanImage);
   foregroundSquareMeanImage->SetInput2(this->m_ForegroundMeanImage);
   foregroundSquareMeanImage->Update();
 
-  //timeinfo = localtime ( &rawtime );
-  //std::cout<< "Get current foreground mean  square image: "<<asctime (timeinfo)<< std::endl;
 
   typename MultiplyImageType::Pointer backgroundSquareMeanImage = MultiplyImageType::New();
   backgroundSquareMeanImage->SetInput1(this->m_BackgroundMeanImage);
   backgroundSquareMeanImage->SetInput2(this->m_BackgroundMeanImage);
   backgroundSquareMeanImage->Update();
-
-  //timeinfo = localtime ( &rawtime );
- // std::cout<< "Get current background mean  square image done "<<std::endl;
 
   typename GaussianBlurFilter::Pointer blurForegroundSquareMeanImage= GaussianBlurFilter::New();
   blurForegroundSquareMeanImage->SetInput(foregroundSquareMeanImage->GetOutput());
@@ -465,18 +374,13 @@ void LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
   blurForegroundSquareMeanImage->Update();
   this->m_BluredForegroundSquareMeanImage->Graft( blurForegroundSquareMeanImage->GetOutput() );
 
-  //timeinfo = localtime ( &rawtime );
- // std::cout<< "Blur current foreground mean  square image: "<<std::endl;
-
   typename GaussianBlurFilter::Pointer blurBackgroundSquareMeanImage= GaussianBlurFilter::New();
   blurBackgroundSquareMeanImage->SetInput(backgroundSquareMeanImage->GetOutput());
   blurBackgroundSquareMeanImage->SetVariance(m_GaussianBlurScale);
   blurBackgroundSquareMeanImage->Update();
   this->m_BluredBackgroundSquareMeanImage->Graft( blurBackgroundSquareMeanImage->GetOutput() );
 
-  //timeinfo = localtime ( &rawtime );
-  //std::cout<< "Blur current background mean  square image: "<<asctime (timeinfo)<< std::endl;
-
+  
 }
 }
 #endif

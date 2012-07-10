@@ -24,7 +24,7 @@
 #include "itkLevelSetDomainMapImageFilter.h"
 #include "itkLevelSetContainerBase.h"
 #include "itkLevelSetEquationChanAndVeseTerm.h"
-#include "itkLevelSetEquationRSFTerm.h"
+#include "itkLevelSetEquationSparseRSFTerm.h"
 #include "itkLevelSetEquationCurvatureTerm.h"
 #include "itkLevelSetEquationTermContainer.h"
 #include "itkLevelSetEquationContainer.h"
@@ -107,7 +107,7 @@ int main( int argc, char* argv[] )
     std::cout << "Algorithm by Chunming Li TIP 2008"<<std::endl;
     std::cout << "Author: Hui Tang"<<std::endl;
     std::cout << "========================================================================="<< std::endl;
-    std::cout << "Example:RSFTermTest.exe -i initial.mhd -o originalImage.mhd -O output.mhd -P internalWeight, externalWeight, curvatureWeight, gausianBlurScale, iterationTime, RSM, dimension"<< std::endl;
+    std::cout << "Example:RSFTermTest.exe -i initial.mhd -o originalImage.mhd -O output.mhd -P internalWeight, externalWeight, curvatureWeight, gausianBlurScale, iterationTime, RSM"<< std::endl;
     std::cout << desc1 << "\n";
 	return EXIT_FAILURE;
     }
@@ -122,7 +122,7 @@ int main( int argc, char* argv[] )
     b >> f;
     parametersF.push_back(f);
     }
-  if( parameters.size() < 7 )
+  if( parameters.size() < 6 )
     {
     std::cout << "Error: not enough parameters provided, check help file" << std::endl;
     return EXIT_FAILURE;
@@ -269,7 +269,7 @@ typedef itk::WhitakerSparseLevelSetImage < InputPixelType, Dimension > SparseLev
 
   std::cout << "Level set container created" << std::endl;
 
-  typedef itk::LevelSetEquationRSFTerm< InputImageType,
+  typedef itk::LevelSetEquationSparseRSFTerm< InputImageType,
 	  LevelSetContainerType > RSFTermType;
 
   RSFTermType::Pointer cvTerm0 = RSFTermType::New();
@@ -282,7 +282,6 @@ typedef itk::WhitakerSparseLevelSetImage < InputPixelType, Dimension > SparseLev
   std::cout<<"GaussianBlurScale:"<<parametersF[3]<<std::endl;
   cvTerm0->SetCurrentLevelSetId( 0 );
   cvTerm0->SetLevelSetContainer( lscontainer );
-  cvTerm0->SetStepForSavingIntermedialResult(0);
 
   typedef itk::LevelSetEquationCurvatureTerm< InputImageType,
       LevelSetContainerType > CurvatureTermType;

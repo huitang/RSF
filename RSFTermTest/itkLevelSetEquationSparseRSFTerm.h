@@ -101,16 +101,6 @@ public:
 
   itkSetMacro( GaussianBlurScale, InputPixelRealType );
   itkGetMacro( GaussianBlurScale, InputPixelRealType );
-  itkSetMacro( StepForSavingIntermedialResult, InputPixelRealType );
-  itkGetMacro( StepForSavingIntermedialResult, InputPixelRealType ); 
-  /*itkSetMacro( MeanInternal, InputPixelRealType );
-  itkGetMacro( MeanInternal, InputPixelRealType );
-  itkSetMacro( MeanExternal, InputPixelRealType );
-  itkGetMacro( MeanExternal, InputPixelRealType );
-  itkSetMacro( InternalCoefficient, InputPixelRealType );
-  itkGetMacro( InternalCoefficient, InputPixelRealType );
-  itkSetMacro( ExternalCoefficient, InputPixelRealType );*/
-  /** Update the term parameter values at end of iteration */
   virtual void Update();
 
   /** Initialize parameters in the terms prior to an iteration */
@@ -182,9 +172,6 @@ protected:
 //  LevelSetOutputRealType   m_ExternalCoefficient;
  //  LevelSetConverterPointer  m_LevelSetConverter;
      InputPixelRealType m_GaussianBlurScale;
-	 InputPixelRealType m_StepForSavingIntermedialResult;
-
-	 InputPixelRealType   currentIteration;
 private:
   LevelSetEquationSparseRSFTerm( const Self& ); // purposely not implemented
   void operator = ( const Self& ); // purposely not implemented
