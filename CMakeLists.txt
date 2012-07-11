@@ -44,3 +44,10 @@ foreach( var ${LevelSetsSourceList}
   target_link_libraries(${var} ${ITK_LIBRARIES} ${Boost_LIBRARIES} )
 endforeach()
 
+include( CTest )
+add_test( RSFTest ${CMAKE_BINARY_DIR}/RSFTermTest
+  -i ${CMAKE_CURRENT_SOURCE_DIR}/TestImage/ini.mhd
+  -o ${CMAKE_CURRENT_SOURCE_DIR}/TestImage/ori.mhd
+  -O out.mhd
+  -P 1 1 1 20 2000 0.01
+)
