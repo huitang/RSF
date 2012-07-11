@@ -16,15 +16,15 @@
  *
  *=========================================================================*/
 
-#ifndef __itkLevelSetEquationChanAndVeseTerm_h
-#define __itkLevelSetEquationChanAndVeseTerm_h
+#ifndef __itkLevelSetEquationChanAndVeseGlobalTerm_h
+#define __itkLevelSetEquationChanAndVeseGlobalTerm_h
 
 #include "itkLevelSetEquationTermBase.h"
 
 namespace itk
 {
 /**
- *  \class LevelSetEquationChanAndVeseTerm
+ *  \class LevelSetEquationChanAndVeseGlobalTerm
  *  \brief Class to represent the internal energy Chan And Vese term
  *
  *  \f[
@@ -45,11 +45,11 @@ namespace itk
  */
 template< class TInput, // Input image or mesh
           class TLevelSetContainer >
-class LevelSetEquationChanAndVeseTerm :
+class LevelSetEquationChanAndVeseGlobalTerm :
     public LevelSetEquationTermBase< TInput, TLevelSetContainer >
 {
 public:
-  typedef LevelSetEquationChanAndVeseTerm         Self;
+  typedef LevelSetEquationChanAndVeseGlobalTerm           Self;
   typedef SmartPointer< Self >                            Pointer;
   typedef SmartPointer< const Self >                      ConstPointer;
   typedef LevelSetEquationTermBase< TInput,
@@ -59,7 +59,7 @@ public:
   itkNewMacro( Self );
 
   /** Run-time type information */
-  itkTypeMacro( LevelSetEquationChanAndVeseTerm,
+  itkTypeMacro( LevelSetEquationChanAndVeseGlobalTerm,
                 LevelSetEquationTermBase );
 
   typedef typename Superclass::InputImageType     InputImageType;
@@ -81,7 +81,7 @@ public:
   typedef typename Superclass::HeavisideType              HeavisideType;
   typedef typename Superclass::HeavisideConstPointer      HeavisideConstPointer;
 
-  typedef typename Superclass::LevelSetDataType LevelSetDataType;
+  typedef typename Superclass::LevelSetDataType           LevelSetDataType;
 
   typedef typename Superclass::DomainMapImageFilterType   DomainMapImageFilterType;
   typedef typename Superclass::CacheImageType             CacheImageType;
@@ -95,12 +95,16 @@ public:
 
   itkSetMacro( MeanInternal, InputPixelRealType );
   itkGetMacro( MeanInternal, InputPixelRealType );
+
   itkSetMacro( MeanExternal, InputPixelRealType );
   itkGetMacro( MeanExternal, InputPixelRealType );
+
   itkSetMacro( InternalCoefficient, InputPixelRealType );
   itkGetMacro( InternalCoefficient, InputPixelRealType );
+
   itkSetMacro( ExternalCoefficient, InputPixelRealType );
   itkGetMacro( ExternalCoefficient, InputPixelRealType );
+
   /** Update the term parameter values at end of iteration */
   virtual void Update();
 
@@ -113,13 +117,16 @@ public:
   /** Compute the product of Heaviside functions in the multi-levelset cases */
   virtual void ComputeProductInternal( const LevelSetInputIndexType& iP,
                               LevelSetOutputRealType& prod );
+
   virtual void ComputeProductExternal( const LevelSetInputIndexType& iP,
 	  LevelSetOutputRealType& prod );
+
   /** Compute the product of Heaviside functions in the multi-levelset cases
    *  except the current levelset */
   virtual void ComputeProductTermInternal( const LevelSetInputIndexType& ,
                                   LevelSetOutputRealType& )
   {}
+
   virtual void ComputeProductTermExternal( const LevelSetInputIndexType& iP,
 	  LevelSetOutputRealType& prod );
 
@@ -130,9 +137,8 @@ public:
 
 
 protected:
-  LevelSetEquationChanAndVeseTerm();
-
-  virtual ~LevelSetEquationChanAndVeseTerm();
+  LevelSetEquationChanAndVeseGlobalTerm();
+  virtual ~LevelSetEquationChanAndVeseGlobalTerm();
 
   /** Returns the term contribution for a given location iP, i.e.
    *  \f$ \omega_i( p ) \f$. */
@@ -146,23 +152,24 @@ protected:
   /** Accumulate contribution to term parameters from a given pixel */
   void Accumulate( const InputPixelType& iPix, const LevelSetOutputRealType& iHIn, const LevelSetOutputRealType& iHEx );
 
-  InputPixelRealType      m_MeanInternal;
-  InputPixelRealType      m_TotalValueInternal;
-  LevelSetOutputRealType  m_TotalHInternal;
+  InputPixelRealType        m_MeanInternal;
+  InputPixelRealType        m_TotalValueInternal;
+  LevelSetOutputRealType    m_TotalHInternal;
 
-  InputPixelRealType      m_MeanExternal;
-  InputPixelRealType      m_TotalValueExternal;
-  LevelSetOutputRealType  m_TotalHExternal;
-  LevelSetOutputRealType   m_InternalCoefficient;
-  LevelSetOutputRealType   m_ExternalCoefficient;
+  InputPixelRealType        m_MeanExternal;
+  InputPixelRealType        m_TotalValueExternal;
+  LevelSetOutputRealType    m_TotalHExternal;
+  LevelSetOutputRealType    m_InternalCoefficient;
+  LevelSetOutputRealType    m_ExternalCoefficient;
+
 private:
-  LevelSetEquationChanAndVeseTerm( const Self& ); // purposely not implemented
+  LevelSetEquationChanAndVeseGlobalTerm( const Self& ); // purposely not implemented
   void operator = ( const Self& ); // purposely not implemented
 };
 
 }
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkLevelSetEquationChanAndVeseTerm.hxx"
+#include "itkLevelSetEquationChanAndVeseGlobalTerm.hxx"
 #endif
 
 #endif

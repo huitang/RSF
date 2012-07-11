@@ -16,14 +16,13 @@
  *
  *=========================================================================*/
 #define BOOST_EXCEPTION_DISABLE 1
-#include "itkRegionBasedLevelSetFunction.h"
+
 #include "itkImage.h"
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
 #include "itkImageRegionIteratorWithIndex.h"
 #include "itkLevelSetDomainMapImageFilter.h"
 #include "itkLevelSetContainerBase.h"
-#include "itkLevelSetEquationChanAndVeseTerm.h"
 #include "itkLevelSetEquationSparseRSFTerm.h"
 #include "itkLevelSetEquationCurvatureTerm.h"
 #include "itkLevelSetEquationTermContainer.h"
@@ -41,18 +40,18 @@
 #include "itkAtanRegularizedHeavisideStepFunction.h"
 #include "itkBinaryImageToLevelSetImageAdaptor.h"
 #include "itkLevelSetEvolutionNumberOfIterationsStoppingCriterion.h"
-#include "boost/program_options.hpp"
-#include "boost/filesystem/operations.hpp"
 #include "itkScalarChanAndVeseSparseLevelSetImageFilter.h"
 #include "itkLevelSetEquationChanAndVeseInternalTerm.h"
+
 #include <time.h>
-#include <math.h>
+
+#include "boost/program_options.hpp"
+#include "boost/filesystem/operations.hpp"
+
 using namespace std;
 
 namespace po = boost::program_options;
 namespace bfs = boost::filesystem;
-
-
 
 int main( int argc, char* argv[] )
 {
@@ -96,20 +95,17 @@ int main( int argc, char* argv[] )
     return EXIT_FAILURE;
     }
 
-
-
-
   // Print help message
   if (vm.count("help") || vm.size()==0)
     {
     std::cout << "========================================================================="<< std::endl;
-	std::cout << "Perform piecewise smooth Regional levelset segmentation: Regional-scalable-fitting" << std::endl ;
+    std::cout << "Perform piecewise smooth Regional levelset segmentation: Regional-scalable-fitting" << std::endl ;
     std::cout << "Algorithm by Chunming Li TIP 2008"<<std::endl;
     std::cout << "Author: Hui Tang"<<std::endl;
     std::cout << "========================================================================="<< std::endl;
     std::cout << "Example:RSFTermTest.exe -i initial.mhd -o originalImage.mhd -O output.mhd -P internalWeight, externalWeight, curvatureWeight, gausianBlurScale, iterationTime, RSM"<< std::endl;
     std::cout << desc1 << "\n";
-	return EXIT_FAILURE;
+    return EXIT_FAILURE;
     }
 
   std::vector<std::string> values(vm["parameters"].as<std::vector<std::string> >());
@@ -139,7 +135,6 @@ int main( int argc, char* argv[] )
   std::string initialImageN;
   std::string originalImageN;
   std::string outputImageN;
-
 
   // Get intensity file
   if( vm.count( "initialImage" ) )
@@ -208,7 +203,7 @@ int main( int argc, char* argv[] )
     return EXIT_FAILURE;
     }
 
-typedef itk::WhitakerSparseLevelSetImage < InputPixelType, Dimension > SparseLevelSetType;
+  typedef itk::WhitakerSparseLevelSetImage < InputPixelType, Dimension > SparseLevelSetType;
   //typedef itk::LevelSetDenseImageBase< InputImageType > SparseLevelSetType;
   typedef itk::BinaryImageToLevelSetImageAdaptor< InputImageType,
       SparseLevelSetType> BinaryToSparseAdaptorType;
@@ -270,7 +265,7 @@ typedef itk::WhitakerSparseLevelSetImage < InputPixelType, Dimension > SparseLev
   std::cout << "Level set container created" << std::endl;
 
   typedef itk::LevelSetEquationSparseRSFTerm< InputImageType,
-	  LevelSetContainerType > RSFTermType;
+      LevelSetContainerType > RSFTermType;
 
   RSFTermType::Pointer cvTerm0 = RSFTermType::New();
   cvTerm0->SetInput( original  );
@@ -291,12 +286,6 @@ typedef itk::WhitakerSparseLevelSetImage < InputPixelType, Dimension > SparseLev
   std::cout<<"GeodesicCurvatureWeight:"<<parametersF[2]<<std::endl;
   curvatureTerm0->SetCurrentLevelSetId( 0 );
   curvatureTerm0->SetLevelSetContainer( lscontainer );
-
-
-
-
-
-  // put the curvature term here!
 
   // **************** CREATE ALL EQUATIONS ****************
 
@@ -335,10 +324,8 @@ typedef itk::WhitakerSparseLevelSetImage < InputPixelType, Dimension > SparseLev
     return EXIT_FAILURE;
     }
 
-
-
-   typedef itk::LevelSetEvolution< EquationContainerType, SparseLevelSetType > LevelSetEvolutionType;
-   LevelSetEvolutionType::Pointer evolution = LevelSetEvolutionType::New();
+  typedef itk::LevelSetEvolution< EquationContainerType, SparseLevelSetType > LevelSetEvolutionType;
+  LevelSetEvolutionType::Pointer evolution = LevelSetEvolutionType::New();
 
   evolution->SetEquationContainer( equationContainer );
   evolution->SetStoppingCriterion( criterion );
@@ -351,8 +338,9 @@ typedef itk::WhitakerSparseLevelSetImage < InputPixelType, Dimension > SparseLev
     catch ( itk::ExceptionObject& err )
     {
     std::cerr << err << std::endl;
-    return EXIT_FAILURE;
     std::cout<<"ERROR::can not update evolution!!"<<std::endl;
+
+    return EXIT_FAILURE;
     }
 
   InputImageType::Pointer outputImage = InputImageType::New();
@@ -371,7 +359,7 @@ typedef itk::WhitakerSparseLevelSetImage < InputPixelType, Dimension > SparseLev
     {
     idx = oIt.GetIndex();
     //oIt.Set( level_set->GetLabelMap()->GetPixel(idx) );
-	oIt.Set( level_set->Evaluate(idx) );
+    oIt.Set( level_set->Evaluate(idx) );
     ++oIt;
     }
 
@@ -390,9 +378,13 @@ typedef itk::WhitakerSparseLevelSetImage < InputPixelType, Dimension > SparseLev
   catch ( itk::ExceptionObject& err )
     {
     std::cout << err << std::endl;
+    return EXIT_FAILURE;
     }
+
   time_t rawtime1;
   struct tm * timeinfo1;
   time ( &rawtime1 );
   timeinfo1 = localtime ( &rawtime1 );
+
+  return EXIT_SUCCESS;
 }

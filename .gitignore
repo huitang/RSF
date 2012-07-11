@@ -1,0 +1,7 @@
+*~
+*.bak
+build/
+CMakeLists.txt.user*
+.kdev*
+*.sln
+*.vcproj

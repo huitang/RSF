@@ -19,29 +19,15 @@
 #ifndef __itkLevelSetEquationSparseRSFTerm_h
 #define __itkLevelSetEquationSparseRSFTerm_h
 
-#include "itkLevelSetEquationChanAndVeseTerm.h"
-#include "itkLevelSetEquationTermBase.h"
-#include <itkImage.h>
+#include "itkLevelSetEquationChanAndVeseGlobalTerm.h"
+#include "itkImage.h"
 
 #include "itkNumericTraits.h"
-
 
 namespace itk
 {
 /**
  *  \class LevelSetEquationSparseRSFTerm
- *  \brief Class to represent the internal energy Chan And Vese term
- *
- *  \f[
- *    \delta_{\epsilon}\left( \phi_{k} \left( p \right) \right) \cdot
-      \left\| I\left( p \right) - \mu_{in} \right\|^2
- *  \cdot
- *  \f]
- *
- *  \li \f$ \delta_{epsilon}  \f$ is a regularized dirac function,
- *  \li \f$ k \f$ is the current level-set id,
- *  \li \f$ I\left( p \right) \f$ is the pixel value at the given location \f$ p \f$,
- *  \li \f$ \mu_{in}  \f$ is the internal mean intensity.
  *
  *  \tparam TInput Input Image Type
  *  \tparam TLevelSetContainer Level set function container type
@@ -51,13 +37,14 @@ namespace itk
 template< class TInput, // Input image or mesh
           class TLevelSetContainer >
 class LevelSetEquationSparseRSFTerm :
-    public LevelSetEquationChanAndVeseTerm< TInput, TLevelSetContainer >
+    public LevelSetEquationChanAndVeseGlobalTerm< TInput, TLevelSetContainer >
 {
 public:
-  typedef LevelSetEquationSparseRSFTerm         Self;
+  typedef LevelSetEquationSparseRSFTerm                   Self;
   typedef SmartPointer< Self >                            Pointer;
   typedef SmartPointer< const Self >                      ConstPointer;
-  typedef LevelSetEquationChanAndVeseTerm< TInput,
+  typedef LevelSetEquationChanAndVeseGlobalTerm<
+                                    TInput,
                                     TLevelSetContainer >  Superclass;
 
   /** Method for creation through object factory */
@@ -65,7 +52,7 @@ public:
 
   /** Run-time type information */
   itkTypeMacro( LevelSetEquationSparseRSFTerm,
-                LevelSetEquationChanAndVeseTerm );
+                LevelSetEquationChanAndVeseGlobalTerm );
 
   typedef typename Superclass::InputImageType     InputImageType;
   typedef typename Superclass::InputImagePointer  InputImagePointer;
@@ -98,9 +85,9 @@ public:
   typedef typename LevelSetContainerType::IdListIterator      IdListIterator;
   typedef typename LevelSetContainerType::IdListConstIterator IdListConstIterator;
 
-
   itkSetMacro( GaussianBlurScale, InputPixelRealType );
   itkGetMacro( GaussianBlurScale, InputPixelRealType );
+
   virtual void Update();
 
   /** Initialize parameters in the terms prior to an iteration */
@@ -113,14 +100,14 @@ public:
   //virtual void ComputeProductInternal( const LevelSetInputIndexType& iP,
    //                           LevelSetOutputRealType& prod );
  // virtual void ComputeProductExternal( const LevelSetInputIndexType& iP,
-	//  LevelSetOutputRealType& prod );
+  //  LevelSetOutputRealType& prod );
   /** Compute the product of Heaviside functions in the multi-levelset cases
    *  except the current levelset */
  // virtual void ComputeProductTermInternal( const LevelSetInputIndexType& ,
  //                                 LevelSetOutputRealType& )
 //  {}
  // virtual void ComputeProductTermExternal( const LevelSetInputIndexType& ,
-	//  LevelSetOutputRealType&  );
+  //  LevelSetOutputRealType&  );
 
   /** Supply updates at pixels to keep the term parameters always updated */
   virtual void UpdatePixel( const LevelSetInputIndexType& iP,
@@ -131,7 +118,6 @@ public:
 
 protected:
   LevelSetEquationSparseRSFTerm();
-
   virtual ~LevelSetEquationSparseRSFTerm();
 
   /** Returns the term contribution for a given location iP, i.e.
@@ -142,36 +128,29 @@ protected:
    *  \f$ \omega_i( p ) \f$. */
   virtual LevelSetOutputRealType Value( const LevelSetInputIndexType& iP,
                                         const LevelSetDataType& iData );
-  //InputPixelType CalculateVarience(const LevelSetInputIndexType& iP, const LevelSetDataType& iData,const InputPixelType& meanValue);
+  //InputPixelType CalculateVariance(const LevelSetInputIndexType& iP, const LevelSetDataType& iData,const InputPixelType& meanValue);
 
   /** Accumulate contribution to term parameters from a given pixel */
   void Accumulate( const InputPixelType& iPix, const LevelSetOutputRealType& iHIn, const LevelSetOutputRealType& iHEx );
-  InputPixelRealType CalculateVarienceFore(const LevelSetInputIndexType& iP, const LevelSetOutputRealType& iData);
-  InputPixelRealType CalculateVarienceBack(const LevelSetInputIndexType& iP, const LevelSetOutputRealType& iData);
+  InputPixelRealType CalculateVarianceFore(const LevelSetInputIndexType& iP, const LevelSetOutputRealType& iData);
+  InputPixelRealType CalculateVarianceBack(const LevelSetInputIndexType& iP, const LevelSetOutputRealType& iData);
   void GetCurrentHeavisideImage();
   void GenerateImage(InputImagePointer image);
   void UpdateMeanImage();
 
 
- // InputPixelRealType      m_MeanInternal;
- // InputPixelRealType      m_TotalValueInternal;
- // LevelSetOutputRealType  m_TotalHInternal;
-   InputImagePointer     m_BackgroundMeanImage;
-   InputImagePointer     m_ForegroundMeanImage;
-   InputImagePointer     m_BluredBackgroundSquareMeanImage;
-   InputImagePointer     m_BluredForegroundSquareMeanImage;
-   InputImagePointer     m_BluredBackgroundMeanImage;
-   InputImagePointer     m_BluredForegroundMeanImage;
-   InputImagePointer     m_CurrentHeavisideInverse;
-   InputImagePointer     m_CurrentHeaviside;
-   InputImagePointer     m_CurrentLevelSet;
- // InputPixelRealType      m_MeanExternal;
- // InputPixelRealType      m_TotalValueExternal;
-//  LevelSetOutputRealType  m_TotalHExternal;
-//  LevelSetOutputRealType   m_InternalCoefficient;
-//  LevelSetOutputRealType   m_ExternalCoefficient;
- //  LevelSetConverterPointer  m_LevelSetConverter;
-     InputPixelRealType m_GaussianBlurScale;
+   InputImagePointer    m_BackgroundMeanImage;
+   InputImagePointer    m_ForegroundMeanImage;
+   InputImagePointer    m_BluredBackgroundSquareMeanImage;
+   InputImagePointer    m_BluredForegroundSquareMeanImage;
+   InputImagePointer    m_BluredBackgroundMeanImage;
+   InputImagePointer    m_BluredForegroundMeanImage;
+   InputImagePointer    m_CurrentHeavisideInverse;
+   InputImagePointer    m_CurrentHeaviside;
+   InputImagePointer    m_CurrentLevelSet;
+
+   InputPixelRealType   m_GaussianBlurScale;
+
 private:
   LevelSetEquationSparseRSFTerm( const Self& ); // purposely not implemented
   void operator = ( const Self& ); // purposely not implemented

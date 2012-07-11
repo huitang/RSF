@@ -10,11 +10,11 @@ endif(COMMAND cmake_policy)
 
 SET(Boost_USE_STATIC_LIBS   ON)
 SET(Boost_USE_MULTITHREADED ON)
-FIND_PACKAGE(Boost COMPONENTS filesystem program_options)
-FIND_PACKAGE(Boost REQUIRED COMPONENTS exception filesystem system program_options)
-FIND_PACKAGE(Boost)
+
+FIND_PACKAGE(Boost REQUIRED COMPONENTS filesystem system program_options)
+
 IF(Boost_FOUND)
- INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIRS})
+  INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIRS})
   LINK_DIRECTORIES( ${Boost_LIBRARY_DIRS})
 ELSE(Boost_FOUND)
   MESSAGE(FATAL_ERROR
@@ -29,26 +29,18 @@ ELSE(ITK_FOUND)
           "Cannot build InsightApplications without ITK.  Please set ITK_DIR.")
 ENDIF(ITK_FOUND)
 
-SET( CMAKE_CXX_FLAGS -DDLL_EXPORTS)		
+SET( CMAKE_CXX_FLAGS -DDLL_EXPORTS)
 IF(MSVC)
  SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc")
  SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
-ENDIF(MSVC)								
-											
+ENDIF(MSVC)
 
-#added
-IF(UNIX)
-  LINK_LIBRARIES( 
-    boost_filesystem
-    boost_program_options
-  )
-ENDIF(UNIX)
 set(LevelSetsSourceList
   RSFTermTest
 )
-foreach( var ${LevelSetsSourceList} 
+foreach( var ${LevelSetsSourceList}
  )
   add_executable(${var} ${var}/${var}.cxx)
-  target_link_libraries(${var} ${ITK_LIBRARIES} )
-  endforeach()
+  target_link_libraries(${var} ${ITK_LIBRARIES} ${Boost_LIBRARIES} )
+endforeach()
 

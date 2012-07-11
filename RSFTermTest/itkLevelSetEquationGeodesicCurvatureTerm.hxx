@@ -125,7 +125,7 @@ void LevelSetEquationGeodesicCurvatureTerm< TInput, TLevelSetContainer >
   itLevel.GoToBegin();
 
   while( !it.IsAtEnd()&& !itInverse.IsAtEnd())
-  {
+    {
     const LevelSetOutputRealType value =static_cast< LevelSetOutputRealType >( this->m_CurrentLevelSetPointer->Evaluate( it.GetIndex()  ) );
     itLevel.Set(value);
     ++itLevel;
@@ -137,13 +137,12 @@ void LevelSetEquationGeodesicCurvatureTerm< TInput, TLevelSetContainer >
     const LevelSetOutputRealType d_val2 = this->m_Heaviside->Evaluate( value );
     itInverse.Set( d_val2);
     ++itInverse;
-  }
+    }
 }
 template< class TInput, class TLevelSetContainer >
 void LevelSetEquationGeodesicCurvatureTerm< TInput, TLevelSetContainer >
 ::GenerateImage(InputImagePointer ioImage )
 {
-
   typename InputImageType::IndexType  index;
   index.Fill( 0 );
   std::vector<float> imgExt(3, 0);

@@ -34,7 +34,7 @@ template< class TInput, class TLevelSetContainer >
 LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
 ::LevelSetEquationSparseRSFTerm()
 {
-  this->m_TermName = "Chan And Vese term";
+  this->m_TermName = "Sparse RSF term";
   this->m_RequiredData.insert( "Value" );
   this->m_GaussianBlurScale=1;
 }
@@ -55,26 +55,27 @@ void LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
 template< class TInput, class TLevelSetContainer >
 void LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
 ::InitializeParameters()
-{ 
-this->m_BackgroundMeanImage= InputImageType::New();
-this->m_ForegroundMeanImage= InputImageType::New();
-this->m_CurrentHeaviside=InputImageType::New();
-this->m_CurrentHeavisideInverse=InputImageType::New();
-this->m_BluredBackgroundMeanImage=InputImageType::New();
-this->m_BluredBackgroundSquareMeanImage=InputImageType::New();
-this->m_BluredForegroundMeanImage=InputImageType::New();
-this->m_BluredForegroundSquareMeanImage=InputImageType::New();
-this->m_CurrentLevelSet=InputImageType::New();
+{
+  this->m_BackgroundMeanImage= InputImageType::New();
+  this->m_ForegroundMeanImage= InputImageType::New();
+  this->m_CurrentHeaviside=InputImageType::New();
+  this->m_CurrentHeavisideInverse=InputImageType::New();
+  this->m_BluredBackgroundMeanImage=InputImageType::New();
+  this->m_BluredBackgroundSquareMeanImage=InputImageType::New();
+  this->m_BluredForegroundMeanImage=InputImageType::New();
+  this->m_BluredForegroundSquareMeanImage=InputImageType::New();
+  this->m_CurrentLevelSet=InputImageType::New();
 
-GenerateImage( this->m_BackgroundMeanImage );
-GenerateImage( this->m_ForegroundMeanImage );
-GenerateImage( this->m_CurrentHeaviside );
-GenerateImage( this->m_CurrentHeavisideInverse );
-GenerateImage( this->m_BluredBackgroundSquareMeanImage );
-GenerateImage( this->m_BluredForegroundSquareMeanImage );
-GenerateImage( this->m_BluredForegroundMeanImage );
-GenerateImage( this->m_BluredBackgroundMeanImage );
-GenerateImage( this->m_CurrentLevelSet );
+  GenerateImage( this->m_BackgroundMeanImage );
+  GenerateImage( this->m_ForegroundMeanImage );
+  GenerateImage( this->m_CurrentHeaviside );
+  GenerateImage( this->m_CurrentHeavisideInverse );
+  GenerateImage( this->m_BluredBackgroundSquareMeanImage );
+  GenerateImage( this->m_BluredForegroundSquareMeanImage );
+  GenerateImage( this->m_BluredForegroundMeanImage );
+  GenerateImage( this->m_BluredBackgroundMeanImage );
+  GenerateImage( this->m_CurrentLevelSet );
+
   this->SetUp();
 }
 
@@ -83,19 +84,18 @@ template< class TInput, class TLevelSetContainer >
 void LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
 ::Initialize( const LevelSetInputIndexType& iP )
 {
-if( this->m_Heaviside.IsNotNull() )
-  {
-  InputPixelType pixel = this->m_Input->GetPixel( iP );
+  if( this->m_Heaviside.IsNotNull() )
+    {
+    InputPixelType pixel = this->m_Input->GetPixel( iP );
 
-  LevelSetOutputRealType prodInternal;
-  this->ComputeProductInternal( iP, prodInternal );
+    LevelSetOutputRealType prodInternal;
+    this->ComputeProductInternal( iP, prodInternal );
 
-  LevelSetOutputRealType prodExternal;
-  this->ComputeProductExternal( iP, prodExternal );
+    LevelSetOutputRealType prodExternal;
+    this->ComputeProductExternal( iP, prodExternal );
 
-  this->Accumulate( pixel, prodInternal,prodExternal );
-  }
-
+    this->Accumulate( pixel, prodInternal,prodExternal );
+    }
   else
     {
     itkWarningMacro( << "m_Heaviside is NULL" );
@@ -129,8 +129,8 @@ LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
     this->ComputeProductTermInternal( iP, prodInternal );
     this->ComputeProductTermExternal( iP, prodExternal );
 
-    InputPixelType e1 = this->CalculateVarienceFore(iP, prodInternal);
-    InputPixelType e2 = this->CalculateVarienceBack(iP, prodExternal);
+    InputPixelType e1 = this->CalculateVarianceFore(iP, prodInternal);
+    InputPixelType e2 = this->CalculateVarianceBack(iP, prodExternal);
 
     const LevelSetOutputRealType oValue = d_val *
       static_cast< LevelSetOutputRealType >( prodInternal *this->m_InternalCoefficient*e1 +  prodExternal *this->m_ExternalCoefficient*e2);
@@ -161,8 +161,8 @@ LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
     this->ComputeProductTermInternal( iP, prodInternal ); // prodInternal = 1
     this->ComputeProductTermExternal( iP, prodExternal );
 
-    InputPixelType e1 = this->CalculateVarienceFore(iP, prodInternal);
-    InputPixelType e2 = this->CalculateVarienceBack(iP, prodExternal);
+    InputPixelType e1 = this->CalculateVarianceFore(iP, prodInternal);
+    InputPixelType e2 = this->CalculateVarianceBack(iP, prodExternal);
 
     const LevelSetOutputRealType oValue = d_val *
       static_cast< LevelSetOutputRealType >( prodInternal * this->m_InternalCoefficient * e1 +
@@ -193,7 +193,7 @@ void LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
 template< class TInput, class TLevelSetContainer >
 typename LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >::InputPixelRealType
 LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
-::CalculateVarienceFore(const LevelSetInputIndexType& iP, const LevelSetOutputRealType& iData)
+::CalculateVarianceFore(const LevelSetInputIndexType& iP, const LevelSetOutputRealType& iData)
 {
   //Here calculate e1, we assume that 1K =1 see Eq.16
   InputPixelRealType intensity =
@@ -209,12 +209,12 @@ LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
       + bluredForegroundSquareMeanImage;
 
   return e;
-
 }
+
 template< class TInput, class TLevelSetContainer >
 typename LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >::InputPixelRealType
 LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
-::CalculateVarienceBack(const LevelSetInputIndexType& iP, const LevelSetOutputRealType& iData)
+::CalculateVarianceBack(const LevelSetInputIndexType& iP, const LevelSetOutputRealType& iData)
 {
   //Here calculate e1, we assume that 1K =1 see Eq.16
   InputPixelRealType intensity =
@@ -230,18 +230,19 @@ LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
       + bluredBackgroundSquareMeanImage;
 
   return e;
-
 }
+
 template< class TInput, class TLevelSetContainer >
 void LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
 ::GenerateImage(InputImagePointer ioImage )
 {
   typename InputImageType::IndexType  index = this->m_Input->GetBufferedRegion().GetIndex();
-  typename InputImageType::SizeType size = this->m_Input->GetBufferedRegion().GetSize();
+  typename InputImageType::SizeType   size  = this->m_Input->GetBufferedRegion().GetSize();
 
   typename InputImageType::RegionType region;
   region.SetIndex( index );
   region.SetSize( size );
+
   typename InputImageType::SpacingType spacing;
   spacing=this->m_Input->GetSpacing();
 
@@ -268,13 +269,15 @@ void LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
 {
   typename itk::ImageRegionIterator<  InputImageType > it( m_CurrentHeaviside, m_CurrentHeaviside->GetBufferedRegion() );
   it.GoToBegin();
+
   typename itk::ImageRegionIterator<  InputImageType > itInverse( m_CurrentHeavisideInverse, m_CurrentHeavisideInverse->GetBufferedRegion() );
   itInverse.GoToBegin();
+
   typename itk::ImageRegionIterator<  InputImageType > itLevel( m_CurrentLevelSet, m_CurrentLevelSet->GetBufferedRegion() );
   itLevel.GoToBegin();
 
   while( !it.IsAtEnd()&& !itInverse.IsAtEnd())
-  {
+    {
     const LevelSetOutputRealType value =static_cast< LevelSetOutputRealType >( this->m_CurrentLevelSetPointer->Evaluate( it.GetIndex()  ) );
     itLevel.Set(value);
     ++itLevel;
@@ -284,10 +287,10 @@ void LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
     it.Set( d_val1);
     ++it;
 
-     const LevelSetOutputRealType d_val2 = this->m_Heaviside->Evaluate( value ); //ARNAUD: 1 - d_val2 ??
+    const LevelSetOutputRealType d_val2 = this->m_Heaviside->Evaluate( value ); //ARNAUD: 1 - d_val2 ??
     itInverse.Set( d_val2);
     ++itInverse;
-  }
+    }
 }
 template< class TInput, class TLevelSetContainer >
 void LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
@@ -355,6 +358,7 @@ void LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
   blurBackgroundMeanImage->SetInput(this->m_BackgroundMeanImage);
   blurBackgroundMeanImage->SetVariance(m_GaussianBlurScale);
   blurBackgroundMeanImage->Update();
+
   this->m_BluredBackgroundMeanImage->Graft( blurBackgroundMeanImage->GetOutput() );
 
   typename MultiplyImageType::Pointer foregroundSquareMeanImage = MultiplyImageType::New();
@@ -372,6 +376,7 @@ void LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
   blurForegroundSquareMeanImage->SetInput(foregroundSquareMeanImage->GetOutput());
   blurForegroundSquareMeanImage->SetVariance(m_GaussianBlurScale);
   blurForegroundSquareMeanImage->Update();
+
   this->m_BluredForegroundSquareMeanImage->Graft( blurForegroundSquareMeanImage->GetOutput() );
 
   typename GaussianBlurFilter::Pointer blurBackgroundSquareMeanImage= GaussianBlurFilter::New();
@@ -379,8 +384,6 @@ void LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
   blurBackgroundSquareMeanImage->SetVariance(m_GaussianBlurScale);
   blurBackgroundSquareMeanImage->Update();
   this->m_BluredBackgroundSquareMeanImage->Graft( blurBackgroundSquareMeanImage->GetOutput() );
-
-  
 }
 }
 #endif
