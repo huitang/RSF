@@ -276,7 +276,7 @@ void LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
   typename itk::ImageRegionIterator<  InputImageType > itLevel( m_CurrentLevelSet, m_CurrentLevelSet->GetBufferedRegion() );
   itLevel.GoToBegin();
 
-  while( !it.IsAtEnd()&& !itInverse.IsAtEnd())
+  while( !it.IsAtEnd())
     {
     const LevelSetOutputRealType value =static_cast< LevelSetOutputRealType >( this->m_CurrentLevelSetPointer->Evaluate( it.GetIndex()  ) );
     itLevel.Set(value);
@@ -287,8 +287,7 @@ void LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
     it.Set( d_val1);
     ++it;
 
-    const LevelSetOutputRealType d_val2 = this->m_Heaviside->Evaluate( value ); //ARNAUD: 1 - d_val2 ??
-    itInverse.Set( d_val2);
+    itInverse.Set( 1-d_val1);
     ++itInverse;
     }
 }

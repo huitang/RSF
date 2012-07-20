@@ -5,22 +5,6 @@ if(COMMAND cmake_policy)
   cmake_policy(SET CMP0003 NEW)
 endif(COMMAND cmake_policy)
 
-#include_directories("E:/packages/boost_1_47_0/boost_1_47_0/")
-#link_directories("E:/packages/lib64/")
-
-SET(Boost_USE_STATIC_LIBS   ON)
-SET(Boost_USE_MULTITHREADED ON)
-
-FIND_PACKAGE(Boost REQUIRED COMPONENTS filesystem system program_options)
-
-IF(Boost_FOUND)
-  INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIRS})
-  LINK_DIRECTORIES( ${Boost_LIBRARY_DIRS})
-ELSE(Boost_FOUND)
-  MESSAGE(FATAL_ERROR
-          "Cannot build without boost. Please set BOOST_DIR.")
-ENDIF(Boost_FOUND)
-
 FIND_PACKAGE(ITK)
 IF(ITK_FOUND)
   INCLUDE(${ITK_USE_FILE})
@@ -46,8 +30,8 @@ endforeach()
 
 include( CTest )
 add_test( RSFTest ${CMAKE_BINARY_DIR}/RSFTermTest
-  -i ${CMAKE_CURRENT_SOURCE_DIR}/TestImage/ini.mhd
-  -o ${CMAKE_CURRENT_SOURCE_DIR}/TestImage/ori.mhd
-  -O out.mhd
-  -P 1 1 1 20 2000 0.01
+   ${CMAKE_CURRENT_SOURCE_DIR}/TestImage/ini.mhd
+   ${CMAKE_CURRENT_SOURCE_DIR}/TestImage/ori.mhd
+   out.mhd
+   1 1 1 20 2000 3
 )
