@@ -65,7 +65,12 @@ int RSFTest( int argc, char *argv[] )
 	imgExt[0] = initial->GetBufferedRegion().GetSize()[0];
 	imgExt[1] = initial->GetBufferedRegion().GetSize()[1];
 	imgExt[2] = initial->GetBufferedRegion().GetSize()[2];
-	std::cout << "initial Image Extent " << imgExt[0] << ", " << imgExt[1] << ", " << imgExt[2] << std::endl;
+	std::cout << "initial Image Extent " << imgExt[0] << ", " << imgExt[1] << ", " ;
+		if (ImageDimension==3)
+		{
+			std::cout<< imgExt[2] << std::endl;
+		}
+		
 
 
 	ReaderType::Pointer originalReader = ReaderType::New();
@@ -77,13 +82,27 @@ int RSFTest( int argc, char *argv[] )
 	imgExt2[0] = original->GetBufferedRegion().GetSize()[0];
 	imgExt2[1] = original->GetBufferedRegion().GetSize()[1];
 	imgExt2[2] = original->GetBufferedRegion().GetSize()[2];
-	std::cout << "original image Extent " << imgExt2[0] << ", " << imgExt2[1] << ", " << imgExt2[2] << std::endl;
-	if (imgExt[0]!=imgExt2[0]||imgExt[1]!=imgExt2[1]||imgExt[2]!=imgExt2[2])
+	std::cout<< std::endl;
+	std::cout << "original image Extent " << imgExt2[0] << ", " << imgExt2[1] << ", "; 
+	if (ImageDimension==3)
 	{
-		std::cout << "image size should be the same!" << std::endl;
-		return EXIT_FAILURE;
+		std::cout<< imgExt2[2] << std::endl;
 	}
-
+	if (ImageDimension==3){
+		if(imgExt[0]!=imgExt2[0]||imgExt[1]!=imgExt2[1]||imgExt[2]!=imgExt2[2])
+	   {
+		std::cout <<"3D image size should be the same!" << std::endl;
+		return EXIT_FAILURE;
+	   }
+	}
+	if (ImageDimension==2) {
+		if( imgExt[0]!=imgExt2[0]||imgExt[1]!=imgExt2[1])
+	   {
+		std::cout <<"2D image image size should be the same!" << std::endl;
+		return EXIT_FAILURE;
+	   }
+	}
+   
 	typedef itk::WhitakerSparseLevelSetImage < InputPixelType, ImageDimension > SparseLevelSetType;
 	//typedef itk::LevelSetDenseImageBase< InputImageType > SparseLevelSetType;
 	typedef itk::BinaryImageToLevelSetImageAdaptor< InputImageType,
@@ -134,7 +153,7 @@ int RSFTest( int argc, char *argv[] )
 	lscontainer->SetDomainMapFilter( domainMapFilter );
 
 	lscontainer->AddLevelSet( 0, level_set );
-
+    std::cout<< std::endl;
 	std::cout << "Level set container created" << std::endl;
 
 	typedef itk::LevelSetEquationSparseRSFTerm< InputImageType,
@@ -237,7 +256,7 @@ int RSFTest( int argc, char *argv[] )
 
 	typedef itk::ImageFileWriter< InputImageType >     OutputWriterType;
 	OutputWriterType::Pointer writer = OutputWriterType::New();
-	writer->SetFileName(outputImageN);
+	writer->SetFileName(argv[3]);
 	//writer->SetInput( binary);
 	writer->SetInput( outputImage );
 
@@ -245,7 +264,7 @@ int RSFTest( int argc, char *argv[] )
 	{
 		writer->Update();
 
-		std::cout << "outputfile is saved as " << outputImageN<<std::endl;
+		std::cout << "outputfile is saved as " << argv[3]<<std::endl;
 	}
 	catch ( itk::ExceptionObject& err )
 	{
