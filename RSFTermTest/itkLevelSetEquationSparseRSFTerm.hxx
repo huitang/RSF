@@ -37,6 +37,8 @@ LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
   this->m_TermName = "Sparse RSF term";
   this->m_RequiredData.insert( "Value" );
   this->m_GaussianBlurScale=1;
+  this->m_InternalCoefficient=1;
+  this->m_ExternalCoefficient=1;
 }
 
 template< class TInput, class TLevelSetContainer >
@@ -349,7 +351,7 @@ void LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
 	divideImageForeground->SetEpsilon(1e-10);
 	divideImageForeground->Update();
 
-	typename DivideImageFilterType::Pointer divideImageBackground =                                 DivideImageFilterType::New();
+	typename DivideImageFilterType::Pointer divideImageBackground = DivideImageFilterType::New();
 	divideImageBackground->SetInput1(
 		gaussianBlurMultiplyImageWithInverseHeavisideImage->GetOutput());
 	divideImageBackground->SetInput2(
