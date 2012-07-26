@@ -281,7 +281,7 @@ int main( int argc, char* argv[] )
 
 	if ( argc < 10 )
 	{
-		std::cerr << "Usage: " << argv[0] << " [initial image] [original image] [output image] [internal weight] [external weight] [curvature weight] [gaussian scale] [iteration time] [image dimension]" << std::endl;
+		std::cerr << "Usage: " << argv[0] << " [initial image (binary image)] [original image] [output image] [internal weight] [external weight] [curvature weight] [gaussian scale] [iteration time] [image dimension]" << std::endl;
 		exit( EXIT_FAILURE );
 	}
 	switch( atoi( argv[9] ) )
