@@ -57,10 +57,10 @@ int RSFTest( int argc, char *argv[] )
 	typedef float                                    InputPixelType;
 	typedef itk::Image< InputPixelType, ImageDimension >  InputImageType;
 	typedef itk::ImageFileReader< InputImageType >            ReaderType;
-	ReaderType::Pointer initialReader = ReaderType::New();
+	typename ReaderType::Pointer initialReader = ReaderType::New();
 	initialReader->SetFileName( argv[1] );
 	initialReader->Update();
-	InputImageType::Pointer initial = initialReader->GetOutput();
+	typename InputImageType::Pointer initial = initialReader->GetOutput();
 	std::vector<float> imgExt(3, 0);
 	imgExt[0] = initial->GetBufferedRegion().GetSize()[0];
 	imgExt[1] = initial->GetBufferedRegion().GetSize()[1];
@@ -70,14 +70,12 @@ int RSFTest( int argc, char *argv[] )
 		{
 			std::cout<< imgExt[2] << std::endl;
 		}
-		
 
-
-	ReaderType::Pointer originalReader = ReaderType::New();
+	typename ReaderType::Pointer originalReader = ReaderType::New();
 	originalReader->SetFileName( argv[2]);
 	originalReader->Update();
 
-	InputImageType::Pointer original = originalReader->GetOutput();
+	typename InputImageType::Pointer original = originalReader->GetOutput();
 	std::vector<float> imgExt2(3, 0);
 	imgExt2[0] = original->GetBufferedRegion().GetSize()[0];
 	imgExt2[1] = original->GetBufferedRegion().GetSize()[1];
@@ -108,11 +106,11 @@ int RSFTest( int argc, char *argv[] )
 	typedef itk::BinaryImageToLevelSetImageAdaptor< InputImageType,
 		SparseLevelSetType> BinaryToSparseAdaptorType;
 
-	BinaryToSparseAdaptorType::Pointer adaptor = BinaryToSparseAdaptorType::New();
+	typename BinaryToSparseAdaptorType::Pointer adaptor = BinaryToSparseAdaptorType::New();
 	adaptor->SetInputImage( initial );
 	adaptor->Initialize();
 
-	typedef SparseLevelSetType::Pointer SparseLevelSetTypePointer;
+	typedef typename SparseLevelSetType::Pointer SparseLevelSetTypePointer;
 	SparseLevelSetTypePointer level_set = adaptor->GetLevelSet();
 
 	typedef itk::IdentifierType         IdentifierType;
@@ -122,7 +120,7 @@ int RSFTest( int argc, char *argv[] )
 	list_ids.push_back( 1 );
 
 	typedef itk::Image< IdListType, ImageDimension >               IdListImageType;
-	IdListImageType::Pointer id_image = IdListImageType::New();
+	typename IdListImageType::Pointer id_image = IdListImageType::New();
 	id_image->SetRegions( initial->GetLargestPossibleRegion() );
 	id_image->Allocate();
 	id_image->FillBuffer( list_ids );
@@ -130,16 +128,16 @@ int RSFTest( int argc, char *argv[] )
 	typedef itk::Image< short, ImageDimension >                     CacheImageType;
 	typedef itk::LevelSetDomainMapImageFilter< IdListImageType, CacheImageType >
 		DomainMapImageFilterType;
-	DomainMapImageFilterType::Pointer domainMapFilter = DomainMapImageFilterType::New();
+	typename DomainMapImageFilterType::Pointer domainMapFilter = DomainMapImageFilterType::New();
 	domainMapFilter->SetInput( id_image );
 	domainMapFilter->Update();
 
 	// Define the Heaviside function
-	typedef SparseLevelSetType::OutputRealType LevelSetOutputRealType;
+	typedef typename SparseLevelSetType::OutputRealType LevelSetOutputRealType;
 
 	typedef itk::AtanRegularizedHeavisideStepFunction< LevelSetOutputRealType,
 		LevelSetOutputRealType > HeavisideFunctionBaseType;
-	HeavisideFunctionBaseType::Pointer heaviside = HeavisideFunctionBaseType::New();
+	typename HeavisideFunctionBaseType::Pointer heaviside = HeavisideFunctionBaseType::New();
 	heaviside->SetEpsilon( 1.5 );
 
 	// Insert the levelsets in a levelset container
@@ -148,7 +146,7 @@ int RSFTest( int argc, char *argv[] )
 	typedef itk::LevelSetEquationTermContainer< InputImageType, LevelSetContainerType >
 		TermContainerType;
 
-	LevelSetContainerType::Pointer lscontainer = LevelSetContainerType::New();
+	typename LevelSetContainerType::Pointer lscontainer = LevelSetContainerType::New();
 	lscontainer->SetHeaviside( heaviside );
 	lscontainer->SetDomainMapFilter( domainMapFilter );
 
@@ -159,7 +157,7 @@ int RSFTest( int argc, char *argv[] )
 	typedef itk::LevelSetEquationSparseRSFTerm< InputImageType,
 		LevelSetContainerType > RSFTermType;
 
-	RSFTermType::Pointer cvTerm0 = RSFTermType::New();
+	typename RSFTermType::Pointer cvTerm0 = RSFTermType::New();
 	cvTerm0->SetInput( original  );
 	cvTerm0->SetInternalCoefficient( atoi(argv[4])  );
 	std::cout<<"InternalCoefficient:"<<atoi(argv[4])<<std::endl;
@@ -173,7 +171,7 @@ int RSFTest( int argc, char *argv[] )
 	typedef itk::LevelSetEquationCurvatureTerm< InputImageType,
 		LevelSetContainerType > CurvatureTermType;
 
-	CurvatureTermType::Pointer curvatureTerm0 =  CurvatureTermType::New();
+	typename CurvatureTermType::Pointer curvatureTerm0 =  CurvatureTermType::New();
 	curvatureTerm0->SetCoefficient( atoi(argv[6]) );
 	std::cout<<"GeodesicCurvatureWeight:"<<atoi(argv[6])<<std::endl;
 	curvatureTerm0->SetCurrentLevelSetId( 0 );
@@ -183,7 +181,7 @@ int RSFTest( int argc, char *argv[] )
 
 	// Create Term Container which corresponds to the combination of terms in the PDE.
 
-	TermContainerType::Pointer termContainer0 = TermContainerType::New();
+	typename TermContainerType::Pointer termContainer0 = TermContainerType::New();
 
 	termContainer0->SetInput( original  );
 	termContainer0->SetCurrentLevelSetId( 0 );
@@ -193,13 +191,13 @@ int RSFTest( int argc, char *argv[] )
 
 
 	typedef itk::LevelSetEquationContainer< TermContainerType > EquationContainerType;
-	EquationContainerType::Pointer equationContainer = EquationContainerType::New();
+	typename EquationContainerType::Pointer equationContainer = EquationContainerType::New();
 	equationContainer->AddEquation( 0, termContainer0 );
 	equationContainer->SetLevelSetContainer( lscontainer );
 
 	typedef itk::LevelSetEvolutionNumberOfIterationsStoppingCriterion< LevelSetContainerType >
 		StoppingCriterionType;
-	StoppingCriterionType::Pointer criterion = StoppingCriterionType::New();
+	typename StoppingCriterionType::Pointer criterion = StoppingCriterionType::New();
 	criterion->SetNumberOfIterations(  atoi(argv[8]) );
 	std::cout<<"NumberOfIterations:"<<atoi(argv[8])<<endl;
 
@@ -216,7 +214,7 @@ int RSFTest( int argc, char *argv[] )
 	}
 
 	typedef itk::LevelSetEvolution< EquationContainerType, SparseLevelSetType > LevelSetEvolutionType;
-	LevelSetEvolutionType::Pointer evolution = LevelSetEvolutionType::New();
+	typename LevelSetEvolutionType::Pointer evolution = LevelSetEvolutionType::New();
 
 	evolution->SetEquationContainer( equationContainer );
 	evolution->SetStoppingCriterion( criterion );
@@ -234,7 +232,7 @@ int RSFTest( int argc, char *argv[] )
 		return EXIT_FAILURE;
 	}
 
-	InputImageType::Pointer outputImage = InputImageType::New();
+	typename InputImageType::Pointer outputImage = InputImageType::New();
 	outputImage->SetRegions( original->GetLargestPossibleRegion() );
 	outputImage->CopyInformation( original );
 	outputImage->Allocate();
@@ -244,7 +242,7 @@ int RSFTest( int argc, char *argv[] )
 	OutputIteratorType oIt( outputImage, outputImage->GetLargestPossibleRegion() );
 	oIt.GoToBegin();
 
-	InputImageType::IndexType idx;
+	typename InputImageType::IndexType idx;
 
 	while( !oIt.IsAtEnd() )
 	{
@@ -255,7 +253,7 @@ int RSFTest( int argc, char *argv[] )
 	}
 
 	typedef itk::ImageFileWriter< InputImageType >     OutputWriterType;
-	OutputWriterType::Pointer writer = OutputWriterType::New();
+	typename OutputWriterType::Pointer writer = OutputWriterType::New();
 	writer->SetFileName(argv[3]);
 	//writer->SetInput( binary);
 	writer->SetInput( outputImage );
