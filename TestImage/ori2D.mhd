@@ -1,0 +1,13 @@
+ObjectType = Image
+NDims = 3
+BinaryData = True
+BinaryDataByteOrderMSB = False 
+CompressedData = False
+TransformMatrix = 1.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 1.0 
+Offset = 0.5 0.5 22.5
+CenterOfRotation = 0 0 0
+ElementNumberOfChannels = 1
+ElementSpacing = 1.0 1.0 1.0
+DimSize = 50 50 1
+ElementType = MET_FLOAT
+ElementDataFile = ori2D.raw
