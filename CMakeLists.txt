@@ -30,8 +30,7 @@ endforeach()
 
 include( CTest )
 add_test( RSFTest ${CMAKE_BINARY_DIR}/RSFTermTest
-   ${CMAKE_CURRENT_SOURCE_DIR}/TestImage/ini.mhd
-   ${CMAKE_CURRENT_SOURCE_DIR}/TestImage/ori.mhd
-   out.mhd
-   1 1 1 20 2000 3
+  ${CMAKE_CURRENT_SOURCE_DIR}/TestImage/ini2D.mhd
+  ${CMAKE_CURRENT_SOURCE_DIR}/TestImage/ori2D.mhd
+  output.mhd 1 1 1 20 1000 2
 )
