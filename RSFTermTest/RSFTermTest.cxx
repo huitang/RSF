@@ -1,6 +1,6 @@
 /*=========================================================================
  *
- *  Copyright Insight Software Consortium
+ *  Copyright Biomedical Imaging Group Rotterdam, Erasmus MC, the Netherlands
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,35 +15,25 @@
  *  limitations under the License.
  *
  *=========================================================================*/
-#define BOOST_EXCEPTION_DISABLE 1
+
 
 #include "itkImage.h"
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
-#include "itkImageRegionIteratorWithIndex.h"
 #include "itkLevelSetDomainMapImageFilter.h"
 #include "itkLevelSetContainerBase.h"
 #include "itkLevelSetEquationSparseRSFTerm.h"
+#include "itkLevelSetEquationChanAndVeseInternalTerm.h"
 #include "itkLevelSetEquationCurvatureTerm.h"
 #include "itkLevelSetEquationTermContainer.h"
 #include "itkLevelSetEquationContainer.h"
-#include "itkAtanRegularizedHeavisideStepFunction.h"
 #include "itkLevelSetEvolution.h"
+#include "itkAtanRegularizedHeavisideStepFunction.h"
 #include "itkWhitakerSparseLevelSetImage.h"
 #include "itkLevelSetEvolutionNumberOfIterationsStoppingCriterion.h"
 #include "itkBinaryImageToLevelSetImageAdaptor.h"
-#include "itkGradientMagnitudeRecursiveGaussianImageFilter.h"
 #include "itkLevelSetEquationCurvatureTerm.h"
-#include "itkLevelSetEquationAdvectionTerm.h"
 #include "itkLevelSetContainer.h"
-#include "itkLevelSetEquationLaplacianTerm.h"
-#include "itkAtanRegularizedHeavisideStepFunction.h"
-#include "itkBinaryImageToLevelSetImageAdaptor.h"
-#include "itkLevelSetEvolutionNumberOfIterationsStoppingCriterion.h"
-#include "itkScalarChanAndVeseSparseLevelSetImageFilter.h"
-#include "itkLevelSetEquationChanAndVeseInternalTerm.h"
-
-using namespace std;
 
 template <unsigned int ImageDimension>
 int RSFTest( int argc, char *argv[] )
@@ -56,53 +46,62 @@ int RSFTest( int argc, char *argv[] )
 
 	typedef float                                    InputPixelType;
 	typedef itk::Image< InputPixelType, ImageDimension >  InputImageType;
-	typedef itk::ImageFileReader< InputImageType >            ReaderType;
+	typedef itk::ImageFileReader< InputImageType >         ReaderType;
 	typename ReaderType::Pointer initialReader = ReaderType::New();
 	initialReader->SetFileName( argv[1] );
-	initialReader->Update();
+
+	try
+	{
+	  initialReader->Update();
+	}
+	catch (std::exception& e)
+	{
+		std::cout << "Exception while reading image " <<argv[1]<<std::endl;
+		std::cout << e.what() << std::endl;
+		exit(-1);
+	}
+
 	typename InputImageType::Pointer initial = initialReader->GetOutput();
-	std::vector<float> imgExt(3, 0);
+	typename InputImageType::SizeType imgExt;
 	imgExt[0] = initial->GetBufferedRegion().GetSize()[0];
 	imgExt[1] = initial->GetBufferedRegion().GetSize()[1];
 	imgExt[2] = initial->GetBufferedRegion().GetSize()[2];
 	std::cout << "initial Image Extent " << imgExt[0] << ", " << imgExt[1] << ", " ;
 		if (ImageDimension==3)
 		{
-			std::cout<< imgExt[2] << std::endl;
+			std::cout << imgExt[2] << std::endl;
 		}
 
 	typename ReaderType::Pointer originalReader = ReaderType::New();
 	originalReader->SetFileName( argv[2]);
-	originalReader->Update();
+	try
+	{
+		originalReader->Update();
+	}
+	catch (std::exception& e)
+	{
+		std::cout << "Exception while reading image " << argv[2] << std::endl;
+		std::cout << e.what() << std::endl;
+		exit(-1);
+	}
 
 	typename InputImageType::Pointer original = originalReader->GetOutput();
-	std::vector<float> imgExt2(3, 0);
+	typename InputImageType::SizeType imgExt2;
 	imgExt2[0] = original->GetBufferedRegion().GetSize()[0];
 	imgExt2[1] = original->GetBufferedRegion().GetSize()[1];
 	imgExt2[2] = original->GetBufferedRegion().GetSize()[2];
-	std::cout<< std::endl;
+	std::cout << std::endl;
 	std::cout << "original image Extent " << imgExt2[0] << ", " << imgExt2[1] << ", "; 
-	if (ImageDimension==3)
+	for (int i=0; i<ImageDimension;i++)
 	{
-		std::cout<< imgExt2[2] << std::endl;
-	}
-	if (ImageDimension==3){
-		if(imgExt[0]!=imgExt2[0]||imgExt[1]!=imgExt2[1]||imgExt[2]!=imgExt2[2])
-	   {
-		std::cout <<"3D image size should be the same!" << std::endl;
-		return EXIT_FAILURE;
-	   }
-	}
-	if (ImageDimension==2) {
-		if( imgExt[0]!=imgExt2[0]||imgExt[1]!=imgExt2[1])
-	   {
-		std::cout <<"2D image image size should be the same!" << std::endl;
-		return EXIT_FAILURE;
-	   }
+		if( imgExt[i]!=imgExt2[i])
+		{
+			std::cout << "input image size should be the same!" << std::endl;
+			return EXIT_FAILURE;
+		}
 	}
    
 	typedef itk::WhitakerSparseLevelSetImage < InputPixelType, ImageDimension > SparseLevelSetType;
-	//typedef itk::LevelSetDenseImageBase< InputImageType > SparseLevelSetType;
 	typedef itk::BinaryImageToLevelSetImageAdaptor< InputImageType,
 		SparseLevelSetType> BinaryToSparseAdaptorType;
 
@@ -111,33 +110,32 @@ int RSFTest( int argc, char *argv[] )
 	adaptor->Initialize();
 
 	typedef typename SparseLevelSetType::Pointer SparseLevelSetTypePointer;
-	SparseLevelSetTypePointer level_set = adaptor->GetLevelSet();
+	SparseLevelSetTypePointer levelset = adaptor->GetLevelSet();
 
 	typedef itk::IdentifierType         IdentifierType;
 	typedef std::list< IdentifierType > IdListType;
 
-	IdListType list_ids;
-	list_ids.push_back( 1 );
+	IdListType listIds;
+	listIds.push_back( 1 );
 
 	typedef itk::Image< IdListType, ImageDimension >               IdListImageType;
-	typename IdListImageType::Pointer id_image = IdListImageType::New();
-	id_image->SetRegions( initial->GetLargestPossibleRegion() );
-	id_image->Allocate();
-	id_image->FillBuffer( list_ids );
+	typename IdListImageType::Pointer idimage = IdListImageType::New();
+	idimage->SetRegions( initial->GetLargestPossibleRegion() );
+	idimage->Allocate();
+	idimage->FillBuffer( listIds );
 
 	typedef itk::Image< short, ImageDimension >                     CacheImageType;
 	typedef itk::LevelSetDomainMapImageFilter< IdListImageType, CacheImageType >
 		DomainMapImageFilterType;
 	typename DomainMapImageFilterType::Pointer domainMapFilter = DomainMapImageFilterType::New();
-	domainMapFilter->SetInput( id_image );
+	domainMapFilter->SetInput( idimage );
 	domainMapFilter->Update();
 
 	// Define the Heaviside function
 	typedef typename SparseLevelSetType::OutputRealType LevelSetOutputRealType;
 
-	typedef itk::AtanRegularizedHeavisideStepFunction< LevelSetOutputRealType,
-		LevelSetOutputRealType > HeavisideFunctionBaseType;
-	typename HeavisideFunctionBaseType::Pointer heaviside = HeavisideFunctionBaseType::New();
+	typedef itk::AtanRegularizedHeavisideStepFunction< LevelSetOutputRealType,LevelSetOutputRealType > HeavisideFunctionType;
+	typename HeavisideFunctionType::Pointer heaviside = HeavisideFunctionType::New();
 	heaviside->SetEpsilon( 1.5 );
 
 	// Insert the levelsets in a levelset container
@@ -146,36 +144,36 @@ int RSFTest( int argc, char *argv[] )
 	typedef itk::LevelSetEquationTermContainer< InputImageType, LevelSetContainerType >
 		TermContainerType;
 
-	typename LevelSetContainerType::Pointer lscontainer = LevelSetContainerType::New();
-	lscontainer->SetHeaviside( heaviside );
-	lscontainer->SetDomainMapFilter( domainMapFilter );
+	typename LevelSetContainerType::Pointer lsContainer = LevelSetContainerType::New();
+	lsContainer->SetHeaviside( heaviside );
+	lsContainer->SetDomainMapFilter( domainMapFilter );
 
-	lscontainer->AddLevelSet( 0, level_set );
-    std::cout<< std::endl;
+	lsContainer->AddLevelSet( 0, levelset );
+    std::cout << std::endl;
 	std::cout << "Level set container created" << std::endl;
 
 	typedef itk::LevelSetEquationSparseRSFTerm< InputImageType,
 		LevelSetContainerType > RSFTermType;
 
-	typename RSFTermType::Pointer cvTerm0 = RSFTermType::New();
-	cvTerm0->SetInput( original  );
-	cvTerm0->SetInternalCoefficient( atoi(argv[4])  );
-	std::cout<<"InternalCoefficient:"<<atoi(argv[4])<<std::endl;
-	cvTerm0->SetExternalCoefficient(  atoi(argv[5]) );
-	std::cout<<"ExternalCoefficient:"<<atoi(argv[5])<<std::endl;
-	cvTerm0->SetGaussianBlurScale(atoi(argv[7]) );
-	std::cout<<"GaussianBlurScale:"<<atoi(argv[7])<<std::endl;
-	cvTerm0->SetCurrentLevelSetId( 0 );
-	cvTerm0->SetLevelSetContainer( lscontainer );
+	typename RSFTermType::Pointer rsfTerm0 = RSFTermType::New();
+	rsfTerm0->SetInput( original  );
+	rsfTerm0->SetInternalCoefficient( atof(argv[4])  );
+	std::cout << "InternalCoefficient:" << atof(argv[4])<< std::endl;
+	rsfTerm0->SetExternalCoefficient(  atof(argv[5]) );
+	std::cout << "ExternalCoefficient:" << atof(argv[5])<< std::endl;
+	rsfTerm0->SetGaussianBlurScale(atof(argv[7]) );
+	std::cout << "GaussianBlurScale:" << atof(argv[7])<< std::endl;
+	rsfTerm0->SetCurrentLevelSetId( 0 );
+	rsfTerm0->SetLevelSetContainer( lsContainer );
 
 	typedef itk::LevelSetEquationCurvatureTerm< InputImageType,
 		LevelSetContainerType > CurvatureTermType;
 
 	typename CurvatureTermType::Pointer curvatureTerm0 =  CurvatureTermType::New();
-	curvatureTerm0->SetCoefficient( atoi(argv[6]) );
-	std::cout<<"GeodesicCurvatureWeight:"<<atoi(argv[6])<<std::endl;
+	curvatureTerm0->SetCoefficient( atof(argv[6]) );
+	std::cout << "GeodesicCurvatureWeight:" << atof(argv[6]) << std::endl;
 	curvatureTerm0->SetCurrentLevelSetId( 0 );
-	curvatureTerm0->SetLevelSetContainer( lscontainer );
+	curvatureTerm0->SetLevelSetContainer( lsContainer );
 
 	// **************** CREATE ALL EQUATIONS ****************
 
@@ -185,23 +183,23 @@ int RSFTest( int argc, char *argv[] )
 
 	termContainer0->SetInput( original  );
 	termContainer0->SetCurrentLevelSetId( 0 );
-	termContainer0->SetLevelSetContainer( lscontainer );
-	termContainer0->AddTerm( 0, cvTerm0  );
+	termContainer0->SetLevelSetContainer( lsContainer );
+	termContainer0->AddTerm( 0, rsfTerm0  );
 	termContainer0->AddTerm( 1, curvatureTerm0 );
 
 
 	typedef itk::LevelSetEquationContainer< TermContainerType > EquationContainerType;
 	typename EquationContainerType::Pointer equationContainer = EquationContainerType::New();
 	equationContainer->AddEquation( 0, termContainer0 );
-	equationContainer->SetLevelSetContainer( lscontainer );
+	equationContainer->SetLevelSetContainer( lsContainer );
 
 	typedef itk::LevelSetEvolutionNumberOfIterationsStoppingCriterion< LevelSetContainerType >
 		StoppingCriterionType;
 	typename StoppingCriterionType::Pointer criterion = StoppingCriterionType::New();
-	criterion->SetNumberOfIterations(  atoi(argv[8]) );
-	std::cout<<"NumberOfIterations:"<<atoi(argv[8])<<endl;
+	criterion->SetNumberOfIterations(  atof(argv[8]) );
+	std::cout << "NumberOfIterations:" << atof(argv[8]) << std::endl;
 
-	if( criterion->GetNumberOfIterations() != atoi(argv[8]))
+	if( criterion->GetNumberOfIterations() != atof(argv[8]))
 	{
 		return EXIT_FAILURE;
 	}
@@ -218,7 +216,7 @@ int RSFTest( int argc, char *argv[] )
 
 	evolution->SetEquationContainer( equationContainer );
 	evolution->SetStoppingCriterion( criterion );
-	evolution->SetLevelSetContainer( lscontainer );
+	evolution->SetLevelSetContainer( lsContainer );
 
 	try
 	{
@@ -227,7 +225,7 @@ int RSFTest( int argc, char *argv[] )
 	catch ( itk::ExceptionObject& err )
 	{
 		std::cerr << err << std::endl;
-		std::cout<<"ERROR::can not update evolution!!"<<std::endl;
+		std::cout << "ERROR::can not update evolution!!" << std::endl;
 
 		return EXIT_FAILURE;
 	}
@@ -247,15 +245,13 @@ int RSFTest( int argc, char *argv[] )
 	while( !oIt.IsAtEnd() )
 	{
 		idx = oIt.GetIndex();
-		//oIt.Set( level_set->GetLabelMap()->GetPixel(idx) );
-		oIt.Set( level_set->Evaluate(idx) );
+		oIt.Set( levelset->Evaluate(idx) );
 		++oIt;
 	}
 
 	typedef itk::ImageFileWriter< InputImageType >     OutputWriterType;
 	typename OutputWriterType::Pointer writer = OutputWriterType::New();
 	writer->SetFileName(argv[3]);
-	//writer->SetInput( binary);
 	writer->SetInput( outputImage );
 
 	try
@@ -280,7 +276,7 @@ int main( int argc, char* argv[] )
 	if ( argc < 10 )
 	{
 		std::cerr << "Usage: " << argv[0] << " [initial image (binary image)] [original image] [output image] [internal weight] [external weight] [curvature weight] [gaussian scale] [iteration time] [image dimension]" << std::endl;
-		exit( EXIT_FAILURE );
+		return( EXIT_FAILURE );
 	}
 	switch( atoi( argv[9] ) )
 	{
@@ -292,7 +288,7 @@ int main( int argc, char* argv[] )
 		break;
 	default:
 		std::cerr << "Unsupported dimension" << std::endl;
-		exit( EXIT_FAILURE );
+		return( EXIT_FAILURE );
 	} 
 }
 

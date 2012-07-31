@@ -24,9 +24,8 @@
 #include "itkDiscreteGaussianImageFilter.h"
 #include "itkAddImageFilter.h"
 #include "itkMultiplyImageFilter.h"
-#include "itkImageFileWriter.h"
 
-#include "itkDivideImageSetEpsilonFilter.h"
+#include "itkDivideImageEpsilonFilter.h"
 namespace itk
 {
 
@@ -36,9 +35,9 @@ LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
 {
   this->m_TermName = "Sparse RSF term";
   this->m_RequiredData.insert( "Value" );
-  this->m_GaussianBlurScale=1;
-  this->m_InternalCoefficient=1;
-  this->m_ExternalCoefficient=1;
+  this->m_GaussianBlurScale=1.;
+  this->m_InternalCoefficient=1.;
+  this->m_ExternalCoefficient=1.;
 }
 
 template< class TInput, class TLevelSetContainer >
@@ -135,7 +134,7 @@ LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
     InputPixelType e2 = this->CalculateVarianceBackground(iP, prodExternal);
 
     const LevelSetOutputRealType oValue = d_val *
-      static_cast< LevelSetOutputRealType >( prodInternal *this->m_InternalCoefficient*e1 +  prodExternal *this->m_ExternalCoefficient*e2);
+      static_cast<const LevelSetOutputRealType >( prodInternal *this->m_InternalCoefficient*e1 +  prodExternal *this->m_ExternalCoefficient*e2);
 
     return oValue;
     }
@@ -167,7 +166,7 @@ LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
     InputPixelType e2 = this->CalculateVarianceBackground(iP, prodExternal);
 
     const LevelSetOutputRealType oValue = d_val *
-      static_cast< LevelSetOutputRealType >( prodInternal * this->m_InternalCoefficient * e1 +
+      static_cast<const LevelSetOutputRealType >( prodInternal * this->m_InternalCoefficient * e1 +
                                              prodExternal * this->m_ExternalCoefficient * e2 );
 
     return oValue;
@@ -184,12 +183,6 @@ template< class TInput, class TLevelSetContainer >
 void LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
 ::Accumulate( const InputPixelType& iPix, const LevelSetOutputRealType& iHIn, const LevelSetOutputRealType& iHEx )
 {
-  /*this->m_TotalValueInternal += static_cast< InputPixelRealType >( iPix ) *
-      static_cast< LevelSetOutputRealType >( iHIn );
-  this->m_TotalHInternal += static_cast< LevelSetOutputRealType >( iHIn );
-  this->m_TotalValueExternal += static_cast< InputPixelRealType >( iPix ) *
-    static_cast< LevelSetOutputRealType >( iHEx);
-  this->m_TotalHExternal += static_cast< LevelSetOutputRealType >( iHEx );*/
 }
 
 template< class TInput, class TLevelSetContainer >
@@ -197,15 +190,16 @@ typename LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >::InputPixel
 LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
 ::CalculateVarianceForeground(const LevelSetInputIndexType& iP, const LevelSetOutputRealType& iData)
 {
-  //Here calculate e1, we assume that 1K =1 see Eq.16
+	/*Here calculate e1, we assume that 1K =1 see Eq.16 from paper  C. Li, C. Kao, J. C. Gore, and Z. Ding. Minimization of region-scalable fitting energy for image 
+	  segmentation. IEEE Trans Image Processing, 17 (10):1940--1949, 2008.*/
  const InputPixelRealType intensity =
-      static_cast< InputPixelRealType >( this->m_Input->GetPixel( iP ) );
+      static_cast< const InputPixelRealType >( this->m_Input->GetPixel( iP ) );
 
  const InputPixelRealType bluredForegroundMeanImage =
-      static_cast< InputPixelRealType >( this->m_BluredForegroundMeanImage->GetPixel( iP ) );
+      static_cast< const InputPixelRealType >( this->m_BluredForegroundMeanImage->GetPixel( iP ) );
 
  const InputPixelRealType bluredForegroundSquareMeanImage =
-      static_cast< InputPixelRealType >( this->m_BluredForegroundSquareMeanImage->GetPixel( iP ) );
+      static_cast< const InputPixelRealType >( this->m_BluredForegroundSquareMeanImage->GetPixel( iP ) );
 
   InputPixelRealType e = intensity * intensity - 2. * bluredForegroundMeanImage * intensity
       + bluredForegroundSquareMeanImage;
@@ -218,7 +212,7 @@ typename LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >::InputPixel
 LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
 ::CalculateVarianceBackground(const LevelSetInputIndexType& iP, const LevelSetOutputRealType& iData)
 {
-  //Here calculate e1, we assume that 1K =1 see Eq.16
+  //Here calculate e2, similar to the calculation of e1
   const InputPixelRealType intensity =
       static_cast< InputPixelRealType >( this->m_Input->GetPixel( iP ) );
 
@@ -228,7 +222,7 @@ LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
   const InputPixelRealType bluredBackgroundSquareMeanImage =
       static_cast< InputPixelRealType >( this->m_BluredBackgroundSquareMeanImage->GetPixel( iP ) );
 
-  InputPixelRealType e = intensity * intensity - 2. * bluredBackgroundMeanImage * intensity
+  const InputPixelRealType e = intensity * intensity - 2. * bluredBackgroundMeanImage * intensity
       + bluredBackgroundSquareMeanImage;
 
   return e;
@@ -238,31 +232,10 @@ template< class TInput, class TLevelSetContainer >
 void LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
 ::GenerateImage(InputImagePointer ioImage )
 {
-  typename InputImageType::IndexType  index = this->m_Input->GetBufferedRegion().GetIndex();
-  typename InputImageType::SizeType   size  = this->m_Input->GetBufferedRegion().GetSize();
-
-  typename InputImageType::RegionType region;
-  region.SetIndex( index );
-  region.SetSize( size );
-
-  typename InputImageType::SpacingType spacing;
-  spacing=this->m_Input->GetSpacing();
-
-  typename InputImageType::PointType origin;
-  origin=this->m_Input->GetOrigin();
-
-  typename InputImageType::DirectionType direction;
-  direction=this->m_Input->GetDirection();
-
-  typedef typename InputImageType::PixelType PixelType;
-
-  ioImage->SetRegions( region );
-  ioImage->SetSpacing( spacing);
-  ioImage->SetOrigin( origin);
-  ioImage->SetDirection( direction);
+  ioImage->CopyInformation(this->m_Input);
   ioImage->Allocate();
 
-  ioImage->FillBuffer( itk::NumericTraits< PixelType >::One);
+  ioImage->FillBuffer( itk::NumericTraits< TInput::PixelType >::One);
 }
 
 template< class TInput, class TLevelSetContainer >
@@ -283,8 +256,6 @@ void LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
     const LevelSetOutputRealType value =static_cast< LevelSetOutputRealType >( this->m_CurrentLevelSetPointer->Evaluate( it.GetIndex()  ) );
     itLevel.Set(value);
     ++itLevel;
-    //LevelSetPointer levelSet = this->m_LevelSetContainer->GetLevelSet( this->m_CurrentLevelSetId );
-    //LevelSetOutputRealType value = levelSet->Evaluate( it.GetIndex()  );
     const LevelSetOutputRealType d_val1 = this->m_Heaviside->Evaluate( -value );
     it.Set( d_val1);
     ++it;
@@ -300,7 +271,7 @@ void LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
 		GaussianBlurFilterType;
 	typedef itk::MultiplyImageFilter <InputImageType,InputImageType,InputImageType>
 		MultiplyImageFilterType;
-	typedef itk::DivideImageSetEpsilonFilter <InputImageType,InputImageType,InputImageType> 
+	typedef itk::DivideImageEpsilonFilter <InputImageType,InputImageType,InputImageType> 
 		DivideImageFilterType;
 
 	GetCurrentHeavisideImage();

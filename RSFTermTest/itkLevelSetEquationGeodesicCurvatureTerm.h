@@ -93,8 +93,7 @@ public:
 	  m_PotentialImage=f;
   
   }
-  itkSetMacro( GeodesicCurvatureOn, InputPixelRealType );
-  itkGetMacro( GeodesicCurvatureOn, InputPixelRealType );
+  itkBooleanMacro( UseGeodesicCurvature, InputPixelRealType );
    void GetCurrentHeavisideImage();
 
   /** Initialize the parameters in the terms prior to an iteration */
@@ -132,8 +131,7 @@ private:
 	InputImagePointer     m_CurrentLevelSet;
   LevelSetEquationGeodesicCurvatureTerm( const Self& ); // purposely not implemented
   typename InputImageType::ConstPointer m_PotentialImage;
-  InputPixelRealType m_GeodesicCurvatureOn;
-  InputPixelRealType currentIteration;
+  bool m_UseGeodesicCurvature;
   void operator = ( const Self& ); // purposely not implemented
 };
 

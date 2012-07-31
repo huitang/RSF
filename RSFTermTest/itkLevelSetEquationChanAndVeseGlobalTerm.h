@@ -25,11 +25,12 @@ namespace itk
 {
 /**
  *  \class LevelSetEquationChanAndVeseGlobalTerm
- *  \brief Class to represent the internal energy Chan And Vese term
+ *  \brief Class to represent the internal and external energy Chan And Vese term
  *
  *  \f[
- *    \delta_{\epsilon}\left( \phi_{k} \left( p \right) \right) \cdot
-      \left\| I\left( p \right) - \mu_{in} \right\|^2
+ *   \delta_{\epsilon}\left( \phi_{k} \left( p \right) \right) \cdot
+     \left\| I\left( p \right) - \mu_{in} \right\|^2 -     \delta_{\epsilon}\left( \phi_{k} \left( p \right) \right) \cdot
+     \left\| I\left( p \right) - \mu_{out} \right\|^2 
  *  \cdot
  *  \f]
  *
@@ -37,6 +38,7 @@ namespace itk
  *  \li \f$ k \f$ is the current level-set id,
  *  \li \f$ I\left( p \right) \f$ is the pixel value at the given location \f$ p \f$,
  *  \li \f$ \mu_{in}  \f$ is the internal mean intensity.
+ *  \li \f$ \mu_{out} \f$ is the external mean intensity.
  *
  *  \tparam TInput Input Image Type
  *  \tparam TLevelSetContainer Level set function container type
@@ -94,16 +96,16 @@ public:
   typedef typename LevelSetContainerType::IdListConstIterator IdListConstIterator;
 
   itkSetMacro( MeanInternal, InputPixelRealType );
-  itkGetMacro( MeanInternal, InputPixelRealType );
+  itkGetConstMacro( MeanInternal, InputPixelRealType );
 
   itkSetMacro( MeanExternal, InputPixelRealType );
-  itkGetMacro( MeanExternal, InputPixelRealType );
+  itkGetConstMacro( MeanExternal, InputPixelRealType );
 
   itkSetMacro( InternalCoefficient, InputPixelRealType );
-  itkGetMacro( InternalCoefficient, InputPixelRealType );
+  itkGetConstMacro( InternalCoefficient, InputPixelRealType );
 
   itkSetMacro( ExternalCoefficient, InputPixelRealType );
-  itkGetMacro( ExternalCoefficient, InputPixelRealType );
+  itkGetConstMacro( ExternalCoefficient, InputPixelRealType );
 
   /** Update the term parameter values at end of iteration */
   virtual void Update();

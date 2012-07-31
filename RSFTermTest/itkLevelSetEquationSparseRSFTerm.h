@@ -31,7 +31,8 @@ namespace itk
  *
  *  \tparam TInput Input Image Type
  *  \tparam TLevelSetContainer Level set function container type
- *
+ *  \Algorithm from C. Li, C. Kao, J. C. Gore, and Z. Ding. Minimization of region-scalable fitting energy for image
+     segmentation. IEEE Trans Image Processing, 17 (10):1940--1949, 2008.
  *  \ingroup ITKLevelSetsv4
  */
 template< class TInput, // Input image or mesh
@@ -96,20 +97,6 @@ public:
   /** Initialize term parameters in the dense case by computing for each pixel location */
   virtual void Initialize( const LevelSetInputIndexType& iP );
 
-  /** Compute the product of Heaviside functions in the multi-levelset cases */
-  //virtual void ComputeProductInternal( const LevelSetInputIndexType& iP,
-   //                           LevelSetOutputRealType& prod );
- // virtual void ComputeProductExternal( const LevelSetInputIndexType& iP,
-  //  LevelSetOutputRealType& prod );
-  /** Compute the product of Heaviside functions in the multi-levelset cases
-   *  except the current levelset */
- // virtual void ComputeProductTermInternal( const LevelSetInputIndexType& ,
- //                                 LevelSetOutputRealType& )
-//  {}
- // virtual void ComputeProductTermExternal( const LevelSetInputIndexType& ,
-  //  LevelSetOutputRealType&  );
-
-  /** Supply updates at pixels to keep the term parameters always updated */
   virtual void UpdatePixel( const LevelSetInputIndexType& iP,
                            const LevelSetOutputRealType & oldValue,
                            const LevelSetOutputRealType & newValue );
@@ -128,8 +115,7 @@ protected:
    *  \f$ \omega_i( p ) \f$. */
   virtual LevelSetOutputRealType Value( const LevelSetInputIndexType& iP,
                                         const LevelSetDataType& iData );
-  //InputPixelType CalculateVariance(const LevelSetInputIndexType& iP, const LevelSetDataType& iData,const InputPixelType& meanValue);
-
+  
   /** Accumulate contribution to term parameters from a given pixel */
   void Accumulate( const InputPixelType& iPix, const LevelSetOutputRealType& iHIn, const LevelSetOutputRealType& iHEx );
   InputPixelRealType CalculateVarianceForeground(const LevelSetInputIndexType& iP, const LevelSetOutputRealType& iData);
@@ -139,21 +125,21 @@ protected:
   void UpdateMeanImage();
 
 
-   InputImagePointer    m_BackgroundMeanImage;
-   InputImagePointer    m_ForegroundMeanImage;
-   InputImagePointer    m_BluredBackgroundSquareMeanImage;
-   InputImagePointer    m_BluredForegroundSquareMeanImage;
-   InputImagePointer    m_BluredBackgroundMeanImage;
-   InputImagePointer    m_BluredForegroundMeanImage;
-   InputImagePointer    m_CurrentInverseHeaviside;
-   InputImagePointer    m_CurrentHeaviside;
-   InputImagePointer    m_CurrentLevelSet;
 
-   InputPixelRealType   m_GaussianBlurScale;
 
 private:
   LevelSetEquationSparseRSFTerm( const Self& ); // purposely not implemented
   void operator = ( const Self& ); // purposely not implemented
+  InputImagePointer    m_BackgroundMeanImage;
+  InputImagePointer    m_ForegroundMeanImage;
+  InputImagePointer    m_BluredBackgroundSquareMeanImage;
+  InputImagePointer    m_BluredForegroundSquareMeanImage;
+  InputImagePointer    m_BluredBackgroundMeanImage;
+  InputImagePointer    m_BluredForegroundMeanImage;
+  InputImagePointer    m_CurrentInverseHeaviside;
+  InputImagePointer    m_CurrentHeaviside;
+  InputImagePointer    m_CurrentLevelSet;
+  InputPixelRealType   m_GaussianBlurScale;
 };
 
 }

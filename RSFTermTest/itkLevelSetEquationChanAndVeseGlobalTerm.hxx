@@ -32,9 +32,11 @@ LevelSetEquationChanAndVeseGlobalTerm< TInput, TLevelSetContainer >
   m_TotalHInternal( NumericTraits< LevelSetOutputRealType >::Zero ),
   m_MeanExternal( NumericTraits< InputPixelRealType >::Zero ),
   m_TotalValueExternal( NumericTraits< InputPixelRealType >::Zero ),
-  m_TotalHExternal( NumericTraits< LevelSetOutputRealType >::Zero )
+  m_TotalHExternal( NumericTraits< LevelSetOutputRealType >::Zero ),
+  m_InternalCoefficient( NumericTraits< LevelSetOutputRealType >::One ),
+  m_ExternalCoefficient( NumericTraits< LevelSetOutputRealType >::One )
 {
-  this->m_TermName = "Chan And Vese term";
+  this->m_TermName = "Global Chan And Vese term";
   this->m_RequiredData.insert( "Value" );
 }
 
@@ -135,7 +137,7 @@ template< class TInput, class TLevelSetContainer >
 void LevelSetEquationChanAndVeseGlobalTerm< TInput, TLevelSetContainer >
 ::ComputeProductTermExternal( const LevelSetInputIndexType& iP, LevelSetOutputRealType& prod )
 {
-  prod = -1 * NumericTraits< LevelSetOutputRealType >::One;
+  prod = -1. * NumericTraits< LevelSetOutputRealType >::One;
 
   if( this->m_LevelSetContainer->HasDomainMap() )
     {

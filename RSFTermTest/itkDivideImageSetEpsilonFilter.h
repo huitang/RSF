@@ -15,8 +15,8 @@
  *  limitations under the License.
  *
  *=========================================================================*/
-#ifndef __itkDivideImageSetEpsilonFilter_h
-#define __itkDivideImageSetEpsilonFilter_h
+#ifndef __itkDivideImageEpsilonFilter_h
+#define __itkDivideImageEpsilonFilter_h
 
 #include "itkBinaryFunctorImageFilter.h"
 #include "itkNumericTraits.h"
@@ -31,17 +31,17 @@ namespace Functor
  * \ingroup ITKImageIntensity
  */
 template< class TInput1, class TInput2, class TOutput >
-class Div
+class DivEpsilon
 {
 public:
-  Div() {}
-  ~Div() {}
-  bool operator!=(const Div &) const
+  DivEpsilon() {}
+  ~DivEpsilon() {}
+  bool operator!=(const DivEpsilon &) const
   {
     return false;
   }
 
-  bool operator==(const Div & other) const
+  bool operator==(const DivEpsilon & other) const
   {
     return !( *this != other );
   }
@@ -55,7 +55,7 @@ public:
       {
       return static_cast< TOutput >(
         static_cast< RealType1 >( A ) /
-        static_cast< RealType2 >( B + 1e-10 ) );
+        static_cast< RealType2 >( B + m_Epsilon ) );
       }
     else
       {
@@ -64,7 +64,7 @@ public:
   }
 };
 }
-/** \class DivideImageSetEpsilonFilter
+/** \class DivideImageEpsilonFilter
  * \brief Pixel-wise division of two images.
  *
  * This class is templated over the types of the two
@@ -72,20 +72,13 @@ public:
  * the division result is set to the maximum number that can be
  * represented  by default to avoid exception. Numeric conversions
  * (castings) are done by the C++ defaults.
- *
- * \ingroup IntensityImageFilters
- * \ingroup MultiThreaded
- * \ingroup ITKImageIntensity
- *
- * \wiki
- * \wikiexample{ImageProcessing/DivideImageSetEpsilonFilter,Pixel-wise division of two images}
- * \endwiki
+
  */
 template< class TInputImage1, class TInputImage2, class TOutputImage >
-class ITK_EXPORT DivideImageSetEpsilonFilter:
+class ITK_EXPORT DivideImageEpsilonFilter:
   public
   BinaryFunctorImageFilter< TInputImage1, TInputImage2, TOutputImage,
-                            Functor::Div<
+                            Functor::DivEpsilon<
                               typename TInputImage1::PixelType,
                               typename TInputImage2::PixelType,
                               typename TOutputImage::PixelType >   >
@@ -94,13 +87,13 @@ public:
   /**
    * Standard "Self" typedef.
    */
-  typedef DivideImageSetEpsilonFilter Self;
+  typedef DivideImageEpsilonFilter Self;
 
   /**
    * Standard "Superclass" typedef.
    */
   typedef BinaryFunctorImageFilter< TInputImage1, TInputImage2, TOutputImage,
-                                    Functor::Div<
+                                    Functor::DivEpsilon<
                                       typename TInputImage1::PixelType,
                                       typename TInputImage2::PixelType,
                                       typename TOutputImage::PixelType >
@@ -119,7 +112,7 @@ public:
   itkSetMacro( Epsilon,  typename TInputImage1::PixelType );
   itkGetMacro( Epsilon,  typename TInputImage1::PixelType );
   /** Runtime information support. */
-  itkTypeMacro(DivideImageSetEpsilonFilter,
+  itkTypeMacro(DivideImageEpsilonFilter,
                BinaryFunctorImageFilter);
 
 #ifdef ITK_USE_CONCEPT_CHECKING
@@ -133,8 +126,8 @@ public:
   /** End concept checking */
 #endif
 protected:
-  DivideImageSetEpsilonFilter() {}
-  virtual ~DivideImageSetEpsilonFilter() {}
+  DivideImageEpsilonFilter() {this->m_Epsilon=1e-10;}
+  virtual ~DivideImageEpsilonFilter() {}
 
   void GenerateData()
     {
@@ -152,7 +145,7 @@ protected:
     }
 
 private:
-  DivideImageSetEpsilonFilter(const Self &); //purposely not implemented
+  DivideImageEpsilonFilter(const Self &); //purposely not implemented
   void operator=(const Self &); //purposely not implemented
   typename TInputImage1::PixelType  m_Epsilon;
 
