@@ -24,8 +24,7 @@
 #include "itkDiscreteGaussianImageFilter.h"
 #include "itkAddImageFilter.h"
 #include "itkMultiplyImageFilter.h"
-
-#include "itkDivideImageEpsilonFilter.h"
+#include "itkDivideImageFilter.h"
 namespace itk
 {
 
@@ -35,9 +34,9 @@ LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
 {
   this->m_TermName = "Sparse RSF term";
   this->m_RequiredData.insert( "Value" );
-  this->m_GaussianBlurScale=1.;
-  this->m_InternalCoefficient=1.;
-  this->m_ExternalCoefficient=1.;
+  this->m_GaussianBlurScale = 1.0;
+  this->m_ExternalCoefficient = 1.0;
+  this->m_ExternalCoefficient = 1.0;
 }
 
 template< class TInput, class TLevelSetContainer >
@@ -56,27 +55,27 @@ void LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
 template< class TInput, class TLevelSetContainer >
 void LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
 ::InitializeParameters()
-{
-  this->m_BackgroundMeanImage= InputImageType::New();
-  this->m_ForegroundMeanImage= InputImageType::New();
-  this->m_CurrentHeaviside=InputImageType::New();
-  this->m_CurrentInverseHeaviside=InputImageType::New();
-  this->m_BluredBackgroundMeanImage=InputImageType::New();
-  this->m_BluredBackgroundSquareMeanImage=InputImageType::New();
-  this->m_BluredForegroundMeanImage=InputImageType::New();
-  this->m_BluredForegroundSquareMeanImage=InputImageType::New();
-  this->m_CurrentLevelSet=InputImageType::New();
+{ 
 
-  GenerateImage( this->m_BackgroundMeanImage );
-  GenerateImage( this->m_ForegroundMeanImage );
-  GenerateImage( this->m_CurrentHeaviside );
-  GenerateImage( this->m_CurrentInverseHeaviside );
-  GenerateImage( this->m_BluredBackgroundSquareMeanImage );
-  GenerateImage( this->m_BluredForegroundSquareMeanImage );
-  GenerateImage( this->m_BluredForegroundMeanImage );
-  GenerateImage( this->m_BluredBackgroundMeanImage );
-  GenerateImage( this->m_CurrentLevelSet );
+this->m_BackgroundMeanImage= InputImageType::New();
+this->m_ForegroundMeanImage= InputImageType::New();
+this->m_CurrentHeaviside=InputImageType::New();
+this->m_CurrentInverseHeaviside=InputImageType::New();
+this->m_BluredBackgroundMeanImage=InputImageType::New();
+this->m_BluredBackgroundSquareMeanImage=InputImageType::New();
+this->m_BluredForegroundMeanImage=InputImageType::New();
+this->m_BluredForegroundSquareMeanImage=InputImageType::New();
+this->m_CurrentLevelSet=InputImageType::New();
 
+GenerateImage( this->m_BackgroundMeanImage );
+GenerateImage( this->m_ForegroundMeanImage );
+GenerateImage( this->m_CurrentHeaviside );
+GenerateImage( this->m_CurrentInverseHeaviside );
+GenerateImage( this->m_BluredBackgroundSquareMeanImage );
+GenerateImage( this->m_BluredForegroundSquareMeanImage );
+GenerateImage( this->m_BluredForegroundMeanImage );
+GenerateImage( this->m_BluredBackgroundMeanImage );
+GenerateImage( this->m_CurrentLevelSet );
   this->SetUp();
 }
 
@@ -85,18 +84,19 @@ template< class TInput, class TLevelSetContainer >
 void LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
 ::Initialize( const LevelSetInputIndexType& iP )
 {
-  if( this->m_Heaviside.IsNotNull() )
-    {
-    InputPixelType pixel = this->m_Input->GetPixel( iP );
+if( this->m_Heaviside.IsNotNull() )
+  {
+  InputPixelType pixel = this->m_Input->GetPixel( iP );
 
-    LevelSetOutputRealType prodInternal;
-    this->ComputeProductInternal( iP, prodInternal );
+  LevelSetOutputRealType prodInternal;
+  this->ComputeProductInternal( iP, prodInternal );
 
-    LevelSetOutputRealType prodExternal;
-    this->ComputeProductExternal( iP, prodExternal );
+  LevelSetOutputRealType prodExternal;
+  this->ComputeProductExternal( iP, prodExternal );
 
-    this->Accumulate( pixel, prodInternal,prodExternal );
-    }
+  this->Accumulate( pixel, prodInternal,prodExternal );
+  }
+
   else
     {
     itkWarningMacro( << "m_Heaviside is NULL" );
@@ -134,7 +134,7 @@ LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
     InputPixelType e2 = this->CalculateVarianceBackground(iP, prodExternal);
 
     const LevelSetOutputRealType oValue = d_val *
-      static_cast<const LevelSetOutputRealType >( prodInternal *this->m_InternalCoefficient*e1 +  prodExternal *this->m_ExternalCoefficient*e2);
+      static_cast< LevelSetOutputRealType >( prodInternal *this->m_InternalCoefficient*e1 +  prodExternal *this->m_ExternalCoefficient*e2);
 
     return oValue;
     }
@@ -166,7 +166,7 @@ LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
     InputPixelType e2 = this->CalculateVarianceBackground(iP, prodExternal);
 
     const LevelSetOutputRealType oValue = d_val *
-      static_cast<const LevelSetOutputRealType >( prodInternal * this->m_InternalCoefficient * e1 +
+      static_cast< LevelSetOutputRealType >( prodInternal * this->m_InternalCoefficient * e1 +
                                              prodExternal * this->m_ExternalCoefficient * e2 );
 
     return oValue;
@@ -183,6 +183,7 @@ template< class TInput, class TLevelSetContainer >
 void LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
 ::Accumulate( const InputPixelType& iPix, const LevelSetOutputRealType& iHIn, const LevelSetOutputRealType& iHEx )
 {
+
 }
 
 template< class TInput, class TLevelSetContainer >
@@ -190,52 +191,61 @@ typename LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >::InputPixel
 LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
 ::CalculateVarianceForeground(const LevelSetInputIndexType& iP, const LevelSetOutputRealType& iData)
 {
-	/*Here calculate e1, we assume that 1K =1 see Eq.16 from paper  C. Li, C. Kao, J. C. Gore, and Z. Ding. Minimization of region-scalable fitting energy for image 
-	  segmentation. IEEE Trans Image Processing, 17 (10):1940--1949, 2008.*/
- const InputPixelRealType intensity =
+  //Here calculate e1, we assume that 1K =1 see Eq.16 in Li's paper in IEEE Image Processing 2008
+  const InputPixelRealType intensity =
       static_cast< const InputPixelRealType >( this->m_Input->GetPixel( iP ) );
 
- const InputPixelRealType bluredForegroundMeanImage =
+  const InputPixelRealType bluredForegroundMeanImage =
       static_cast< const InputPixelRealType >( this->m_BluredForegroundMeanImage->GetPixel( iP ) );
 
- const InputPixelRealType bluredForegroundSquareMeanImage =
+  const InputPixelRealType bluredForegroundSquareMeanImage =
       static_cast< const InputPixelRealType >( this->m_BluredForegroundSquareMeanImage->GetPixel( iP ) );
 
-  InputPixelRealType e = intensity * intensity - 2. * bluredForegroundMeanImage * intensity
+  const InputPixelRealType e = intensity * intensity - 2. * bluredForegroundMeanImage * intensity
       + bluredForegroundSquareMeanImage;
 
   return e;
-}
 
+}
 template< class TInput, class TLevelSetContainer >
 typename LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >::InputPixelRealType
 LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
 ::CalculateVarianceBackground(const LevelSetInputIndexType& iP, const LevelSetOutputRealType& iData)
 {
-  //Here calculate e2, similar to the calculation of e1
+  //Here calculate e1, we assume that 1K =1 see Eq.16
   const InputPixelRealType intensity =
-      static_cast< InputPixelRealType >( this->m_Input->GetPixel( iP ) );
+      static_cast< const InputPixelRealType >( this->m_Input->GetPixel( iP ) );
 
   const InputPixelRealType bluredBackgroundMeanImage =
-      static_cast< InputPixelRealType >( this->m_BluredBackgroundMeanImage->GetPixel( iP ) );
+      static_cast< const InputPixelRealType >( this->m_BluredBackgroundMeanImage->GetPixel( iP ) );
 
   const InputPixelRealType bluredBackgroundSquareMeanImage =
-      static_cast< InputPixelRealType >( this->m_BluredBackgroundSquareMeanImage->GetPixel( iP ) );
+      static_cast< const InputPixelRealType >( this->m_BluredBackgroundSquareMeanImage->GetPixel( iP ) );
 
   const InputPixelRealType e = intensity * intensity - 2. * bluredBackgroundMeanImage * intensity
       + bluredBackgroundSquareMeanImage;
 
   return e;
-}
 
+}
 template< class TInput, class TLevelSetContainer >
 void LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
 ::GenerateImage(InputImagePointer ioImage )
 {
-  ioImage->CopyInformation(this->m_Input);
+  typename InputImageType::IndexType  index = this->m_Input->GetBufferedRegion().GetIndex();
+  typename InputImageType::SizeType size = this->m_Input->GetBufferedRegion().GetSize();
+
+  typename InputImageType::RegionType region;
+  region.SetIndex( index );
+  region.SetSize( size );
+
+  typedef typename InputImageType::PixelType PixelType;
+
+  ioImage->SetRegions( region );
+  ioImage->CopyInformation( this->m_Input);
   ioImage->Allocate();
 
-  ioImage->FillBuffer( itk::NumericTraits< TInput::PixelType >::One);
+  ioImage->FillBuffer( itk::NumericTraits< PixelType >::One);
 }
 
 template< class TInput, class TLevelSetContainer >
@@ -244,15 +254,13 @@ void LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
 {
   typename itk::ImageRegionIterator<  InputImageType > it( m_CurrentHeaviside, m_CurrentHeaviside->GetBufferedRegion() );
   it.GoToBegin();
-
   typename itk::ImageRegionIterator<  InputImageType > itInverse( m_CurrentInverseHeaviside, m_CurrentInverseHeaviside->GetBufferedRegion() );
   itInverse.GoToBegin();
-
   typename itk::ImageRegionIterator<  InputImageType > itLevel( m_CurrentLevelSet, m_CurrentLevelSet->GetBufferedRegion() );
   itLevel.GoToBegin();
 
   while( !it.IsAtEnd())
-    {
+  {
     const LevelSetOutputRealType value =static_cast< LevelSetOutputRealType >( this->m_CurrentLevelSetPointer->Evaluate( it.GetIndex()  ) );
     itLevel.Set(value);
     ++itLevel;
@@ -260,118 +268,110 @@ void LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
     it.Set( d_val1);
     ++it;
 
-    itInverse.Set( 1-d_val1);
+    itInverse.Set( 1 - d_val1);
     ++itInverse;
-    }
+  }
 }
 template< class TInput, class TLevelSetContainer >
 void LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
-::UpdateMeanImage(){
-	typedef itk::DiscreteGaussianImageFilter<InputImageType,InputImageType>
-		GaussianBlurFilterType;
-	typedef itk::MultiplyImageFilter <InputImageType,InputImageType,InputImageType>
-		MultiplyImageFilterType;
-	typedef itk::DivideImageEpsilonFilter <InputImageType,InputImageType,InputImageType> 
-		DivideImageFilterType;
+::UpdateMeanImage()
+{
+  typedef itk::DiscreteGaussianImageFilter<InputImageType,InputImageType> GaussianBlurFilter;
+  typedef itk::MultiplyImageFilter <InputImageType,InputImageType,InputImageType> MultiplyImageType;
+  typedef itk::DivideImageFilter <InputImageType,InputImageType,InputImageType> DivideImageType;
 
-	GetCurrentHeavisideImage();
+  GetCurrentHeavisideImage();
 
-	typename MultiplyImageFilterType::Pointer multiplyImageWithHeavisideImage =
-		MultiplyImageFilterType::New();
-	multiplyImageWithHeavisideImage->SetInput1(this->m_Input);
-	multiplyImageWithHeavisideImage->SetInput2(this->m_CurrentHeaviside);
-	multiplyImageWithHeavisideImage->Update();
+  typename MultiplyImageType::Pointer multiplyImageWithHeavisideImage = MultiplyImageType::New();
+  multiplyImageWithHeavisideImage->SetInput1(this->m_Input);
+  multiplyImageWithHeavisideImage->SetInput2(this->m_CurrentHeaviside);
+  multiplyImageWithHeavisideImage->Update();
 
-	typename MultiplyImageFilterType::Pointer multiplyImageWithInverseHeavisideImage =
-		MultiplyImageFilterType::New();
-	multiplyImageWithInverseHeavisideImage->SetInput1(this->m_Input);
-	multiplyImageWithInverseHeavisideImage->SetInput2(this->m_CurrentInverseHeaviside);
-	multiplyImageWithInverseHeavisideImage->Update();
+  typename MultiplyImageType::Pointer multiplyImageWithHeavisideInverseImage = MultiplyImageType::New();
+  multiplyImageWithHeavisideInverseImage->SetInput1(this->m_Input);
+  multiplyImageWithHeavisideInverseImage->SetInput2(this->m_CurrentInverseHeaviside);
+  multiplyImageWithHeavisideInverseImage->Update();
+
+  typename GaussianBlurFilter::Pointer gaussianblurMultiplyImageWithHeavisideImage = GaussianBlurFilter::New();
+  gaussianblurMultiplyImageWithHeavisideImage->SetInput(multiplyImageWithHeavisideImage->GetOutput());
+  gaussianblurMultiplyImageWithHeavisideImage->SetVariance (this->m_GaussianBlurScale);
+  gaussianblurMultiplyImageWithHeavisideImage->Update();
+
+ 
+  typename GaussianBlurFilter::Pointer gaussianblurMultiplyImageWithHeavisideInverseImage = GaussianBlurFilter::New();
+  gaussianblurMultiplyImageWithHeavisideInverseImage->SetInput(multiplyImageWithHeavisideInverseImage->GetOutput());
+  gaussianblurMultiplyImageWithHeavisideInverseImage->SetVariance (this->m_GaussianBlurScale);
+  gaussianblurMultiplyImageWithHeavisideInverseImage->Update();
+
+ 
+  typename GaussianBlurFilter::Pointer gaussianblurHeaviside =GaussianBlurFilter::New();
+  gaussianblurHeaviside->SetInput(this->m_CurrentHeaviside);
+  gaussianblurHeaviside->SetVariance(this->m_GaussianBlurScale);
+  gaussianblurHeaviside->Update();
+
+ 
+  typename GaussianBlurFilter::Pointer gaussianblurHeavisideInverse =GaussianBlurFilter::New();
+  gaussianblurHeavisideInverse->SetInput(this->m_CurrentInverseHeaviside);
+  gaussianblurHeavisideInverse->SetVariance(this->m_GaussianBlurScale);
+  gaussianblurHeavisideInverse->Update();
+
+ 
+
+  typename DivideImageType::Pointer divideImageFore =  DivideImageType::New();
+  divideImageFore->SetInput1(gaussianblurMultiplyImageWithHeavisideImage->GetOutput());
+  divideImageFore->SetInput2(gaussianblurHeaviside->GetOutput());
+  divideImageFore->Update();
+
+  typename DivideImageType::Pointer divideImageBack =  DivideImageType::New();
+  divideImageBack->SetInput1(gaussianblurMultiplyImageWithHeavisideInverseImage->GetOutput());
+  divideImageBack->SetInput2(gaussianblurHeavisideInverse->GetOutput());
+  divideImageBack->Update();
+
+  this->m_ForegroundMeanImage->Graft( divideImageFore->GetOutput() );
+  this->m_BackgroundMeanImage->Graft( divideImageBack->GetOutput() );
+
+ 
+  typename GaussianBlurFilter::Pointer blurForegroundMeanImage= GaussianBlurFilter::New();
+  blurForegroundMeanImage->SetInput(this->m_ForegroundMeanImage);
+  blurForegroundMeanImage->SetVariance(m_GaussianBlurScale);
+  blurForegroundMeanImage->Update();
+
+  this->m_BluredForegroundMeanImage->Graft( blurForegroundMeanImage->GetOutput() );
 
 
-	typename GaussianBlurFilterType::Pointer gaussianBlurMultiplyImageWithHeavisideImage =
-		GaussianBlurFilterType::New();
-	gaussianBlurMultiplyImageWithHeavisideImage->SetInput(
-		multiplyImageWithHeavisideImage->GetOutput());
-	gaussianBlurMultiplyImageWithHeavisideImage->SetVariance(this->m_GaussianBlurScale);
-	gaussianBlurMultiplyImageWithHeavisideImage->Update();
+  typename GaussianBlurFilter::Pointer blurBackgroundMeanImage= GaussianBlurFilter::New();
+  blurBackgroundMeanImage->SetInput(this->m_BackgroundMeanImage);
+  blurBackgroundMeanImage->SetVariance(m_GaussianBlurScale);
+  blurBackgroundMeanImage->Update();
+  this->m_BluredBackgroundMeanImage->Graft( blurBackgroundMeanImage->GetOutput() );
 
-	typename GaussianBlurFilterType::Pointer gaussianBlurMultiplyImageWithInverseHeavisideImage = 
-		GaussianBlurFilterType::New();
-	gaussianBlurMultiplyImageWithInverseHeavisideImage->SetInput(
-		multiplyImageWithInverseHeavisideImage->GetOutput());
-	gaussianBlurMultiplyImageWithInverseHeavisideImage->SetVariance(this->m_GaussianBlurScale);
-	gaussianBlurMultiplyImageWithInverseHeavisideImage->Update();
+  
+  typename MultiplyImageType::Pointer foregroundSquareMeanImage = MultiplyImageType::New();
+  foregroundSquareMeanImage->SetInput1(this->m_ForegroundMeanImage);
+  foregroundSquareMeanImage->SetInput2(this->m_ForegroundMeanImage);
+  foregroundSquareMeanImage->Update();
 
-	typename GaussianBlurFilterType::Pointer gaussianBlurHeaviside =
-		GaussianBlurFilterType::New();
-	gaussianBlurHeaviside->SetInput(this->m_CurrentHeaviside);
-	gaussianBlurHeaviside->SetVariance(this->m_GaussianBlurScale);
-	gaussianBlurHeaviside->Update();
+  
+  typename MultiplyImageType::Pointer backgroundSquareMeanImage = MultiplyImageType::New();
+  backgroundSquareMeanImage->SetInput1(this->m_BackgroundMeanImage);
+  backgroundSquareMeanImage->SetInput2(this->m_BackgroundMeanImage);
+  backgroundSquareMeanImage->Update();
 
-	typename GaussianBlurFilterType::Pointer gaussianBlurInverseHeaviside =
-		GaussianBlurFilterType::New();
-	gaussianBlurInverseHeaviside->SetInput(this->m_CurrentInverseHeaviside);
-	gaussianBlurInverseHeaviside->SetVariance(this->m_GaussianBlurScale);
-	gaussianBlurInverseHeaviside->Update();
+ 
+  typename GaussianBlurFilter::Pointer blurForegroundSquareMeanImage= GaussianBlurFilter::New();
+  blurForegroundSquareMeanImage->SetInput(foregroundSquareMeanImage->GetOutput());
+  blurForegroundSquareMeanImage->SetVariance(m_GaussianBlurScale);
+  blurForegroundSquareMeanImage->Update();
+  this->m_BluredForegroundSquareMeanImage->Graft( blurForegroundSquareMeanImage->GetOutput() );
 
-	typename DivideImageFilterType::Pointer divideImageForeground = DivideImageFilterType::New();
-	divideImageForeground->SetInput1(
-		gaussianBlurMultiplyImageWithHeavisideImage->GetOutput());
-	divideImageForeground->SetInput2( gaussianBlurHeaviside->GetOutput());
-	divideImageForeground->SetEpsilon(1e-10);
-	divideImageForeground->Update();
+ 
+  typename GaussianBlurFilter::Pointer blurBackgroundSquareMeanImage= GaussianBlurFilter::New();
+  blurBackgroundSquareMeanImage->SetInput(backgroundSquareMeanImage->GetOutput());
+  blurBackgroundSquareMeanImage->SetVariance(m_GaussianBlurScale);
+  blurBackgroundSquareMeanImage->Update();
+  this->m_BluredBackgroundSquareMeanImage->Graft( blurBackgroundSquareMeanImage->GetOutput() );
 
-	typename DivideImageFilterType::Pointer divideImageBackground = DivideImageFilterType::New();
-	divideImageBackground->SetInput1(
-		gaussianBlurMultiplyImageWithInverseHeavisideImage->GetOutput());
-	divideImageBackground->SetInput2(
-		gaussianBlurInverseHeaviside->GetOutput());
-	divideImageBackground->SetEpsilon(1e-10);
-	divideImageBackground->Update();
-
-	typename GaussianBlurFilterType::Pointer blurForegroundMeanImage =   
-		GaussianBlurFilterType::New();
-	blurForegroundMeanImage->SetInput(this->m_ForegroundMeanImage);
-	blurForegroundMeanImage->SetVariance(m_GaussianBlurScale);
-	blurForegroundMeanImage->Update();
-
-	this->m_BluredForegroundMeanImage->Graft(blurForegroundMeanImage->GetOutput() );
-
-	typename GaussianBlurFilterType::Pointer blurBackgroundMeanImage= 
-		GaussianBlurFilterType::New();
-	blurBackgroundMeanImage->SetInput(this->m_BackgroundMeanImage);
-	blurBackgroundMeanImage->SetVariance(m_GaussianBlurScale);
-	blurBackgroundMeanImage->Update();
-	this->m_BluredBackgroundMeanImage->Graft(blurBackgroundMeanImage->GetOutput() );
-
-	typename MultiplyImageFilterType::Pointer foregroundSquareMeanImage =
-		MultiplyImageFilterType::New();
-	foregroundSquareMeanImage->SetInput1(this->m_ForegroundMeanImage);
-	foregroundSquareMeanImage->SetInput2(this->m_ForegroundMeanImage);
-	foregroundSquareMeanImage->Update();
-
-	typename MultiplyImageFilterType::Pointer backgroundSquareMeanImage =
-		MultiplyImageFilterType::New();
-	backgroundSquareMeanImage->SetInput1(this->m_BackgroundMeanImage);
-	backgroundSquareMeanImage->SetInput2(this->m_BackgroundMeanImage);
-	backgroundSquareMeanImage->Update();
-
-	typename GaussianBlurFilterType::Pointer blurForegroundSquareMeanImage= 
-		GaussianBlurFilterType::New();
-	blurForegroundSquareMeanImage->SetInput(foregroundSquareMeanImage->GetOutput());
-	blurForegroundSquareMeanImage->SetVariance(m_GaussianBlurScale);
-	blurForegroundSquareMeanImage->Update();
-	this->m_BluredForegroundSquareMeanImage->Graft( 
-		blurForegroundSquareMeanImage->GetOutput() );
-
-	typename GaussianBlurFilterType::Pointer blurBackgroundSquareMeanImage= 
-		GaussianBlurFilterType::New();
-	blurBackgroundSquareMeanImage->SetInput(backgroundSquareMeanImage->GetOutput());
-	blurBackgroundSquareMeanImage->SetVariance(m_GaussianBlurScale);
-	blurBackgroundSquareMeanImage->Update();
-	this->m_BluredBackgroundSquareMeanImage->Graft( 
-		blurBackgroundSquareMeanImage->GetOutput() );
+ 
 }
 }
 #endif

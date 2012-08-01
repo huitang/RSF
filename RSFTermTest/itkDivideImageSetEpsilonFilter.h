@@ -55,7 +55,7 @@ public:
       {
       return static_cast< TOutput >(
         static_cast< RealType1 >( A ) /
-        static_cast< RealType2 >( B + m_Epsilon ) );
+        static_cast< RealType2 >( B + 1e-10 ) );
       }
     else
       {

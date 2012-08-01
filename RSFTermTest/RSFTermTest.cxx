@@ -66,12 +66,7 @@ int RSFTest( int argc, char *argv[] )
 	imgExt[0] = initial->GetBufferedRegion().GetSize()[0];
 	imgExt[1] = initial->GetBufferedRegion().GetSize()[1];
 	imgExt[2] = initial->GetBufferedRegion().GetSize()[2];
-	std::cout << "initial Image Extent " << imgExt[0] << ", " << imgExt[1] << ", " ;
-		if (ImageDimension==3)
-		{
-			std::cout << imgExt[2] << std::endl;
-		}
-
+	
 	typename ReaderType::Pointer originalReader = ReaderType::New();
 	originalReader->SetFileName( argv[2]);
 	try
@@ -90,12 +85,10 @@ int RSFTest( int argc, char *argv[] )
 	imgExt2[0] = original->GetBufferedRegion().GetSize()[0];
 	imgExt2[1] = original->GetBufferedRegion().GetSize()[1];
 	imgExt2[2] = original->GetBufferedRegion().GetSize()[2];
-	std::cout << std::endl;
-	std::cout << "original image Extent " << imgExt2[0] << ", " << imgExt2[1] << ", "; 
 	for (int i=0; i<ImageDimension;i++)
 	{
 		if( imgExt[i]!=imgExt2[i])
-		{
+		{   
 			std::cout << "input image size should be the same!" << std::endl;
 			return EXIT_FAILURE;
 		}
@@ -171,7 +164,7 @@ int RSFTest( int argc, char *argv[] )
 
 	typename CurvatureTermType::Pointer curvatureTerm0 =  CurvatureTermType::New();
 	curvatureTerm0->SetCoefficient( atof(argv[6]) );
-	std::cout << "GeodesicCurvatureWeight:" << atof(argv[6]) << std::endl;
+	std::cout << "CurvatureWeight:" << atof(argv[6]) << std::endl;
 	curvatureTerm0->SetCurrentLevelSetId( 0 );
 	curvatureTerm0->SetLevelSetContainer( lsContainer );
 
@@ -271,11 +264,17 @@ int RSFTest( int argc, char *argv[] )
 }
 
 int main( int argc, char* argv[] )
-{
+{ 
 
+    std::cout << "================================================================================" <<std::endl;
+	std::cout << "A test for the itk class itk::LevelSetEqationSparseRSFTerm" <<std::endl<<std::endl;
+	std::cout << "Which is an implementation of the paper published by: "<<std::endl<<std::endl;
+	std::cout << "C. Li, C. Kao, J. C. Gore, and Z. Ding. "<<std::endl<<std::endl;
+	std::cout << "Minimization of region-scalable fitting energy for image segmentation. IEEE Trans Image Processing, 17 (10):1940--1949, 2008." <<std::endl<<std::endl;
+	std::cout << "=================================================================================" <<std::endl;
 	if ( argc < 10 )
 	{
-		std::cerr << "Usage: " << argv[0] << " [initial image (binary image)] [original image] [output image] [internal weight] [external weight] [curvature weight] [gaussian scale] [iteration time] [image dimension]" << std::endl;
+		std::cerr << "Usage: " << argv[0] << " [initial image (binary image)] [original image] [output image] [internal coefficient] [external coefficient] [curvature coefficient] [gaussian scale] [iteration time] [image dimension]" << std::endl;
 		return( EXIT_FAILURE );
 	}
 	switch( atoi( argv[9] ) )

@@ -87,7 +87,7 @@ public:
   typedef typename LevelSetContainerType::IdListConstIterator IdListConstIterator;
 
   itkSetMacro( GaussianBlurScale, InputPixelRealType );
-  itkGetMacro( GaussianBlurScale, InputPixelRealType );
+  itkGetConstMacro( GaussianBlurScale, InputPixelRealType );
 
   virtual void Update();
 
@@ -124,11 +124,6 @@ protected:
   void GenerateImage(InputImagePointer image);
   void UpdateMeanImage();
 
-
-
-
-private:
-  LevelSetEquationSparseRSFTerm( const Self& ); // purposely not implemented
   void operator = ( const Self& ); // purposely not implemented
   InputImagePointer    m_BackgroundMeanImage;
   InputImagePointer    m_ForegroundMeanImage;
@@ -140,6 +135,11 @@ private:
   InputImagePointer    m_CurrentHeaviside;
   InputImagePointer    m_CurrentLevelSet;
   InputPixelRealType   m_GaussianBlurScale;
+
+
+private:
+  LevelSetEquationSparseRSFTerm( const Self& ); // purposely not implemented
+
 };
 
 }
