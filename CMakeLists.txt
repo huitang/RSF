@@ -1,26 +1,30 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.4)
-PROJECT(RSFTest)
+project(RSFTest)
 
-FIND_PACKAGE(ITK)
-IF(ITK_FOUND)
-  INCLUDE(${ITK_USE_FILE})
-ELSE(ITK_FOUND)
-  MESSAGE(FATAL_ERROR
+cmake_minimum_required(VERSION 2.6)
+
+find_package(ITK)
+if(ITK_FOUND)
+  include(${ITK_USE_FILE})
+else(ITK_FOUND)
+  message(FATAL_ERROR
           "Cannot build RSFTest without ITK.  Please set ITK_DIR.")
-ENDIF(ITK_FOUND)
+endif(ITK_FOUND)
 
-SET( CMAKE_CXX_FLAGS -DDLL_EXPORTS)
+if( WIN32 )
+  SET( CMAKE_CXX_FLAGS -DDLL_EXPORTS)
+endif()
 
 set(LevelSetsSourceList
   RSFTermTest
 )
-foreach( var ${LevelSetsSourceList}
- )
+
+foreach( var ${LevelSetsSourceList} )
   add_executable(${var} ${var}/${var}.cxx)
   target_link_libraries(${var} ${ITK_LIBRARIES}  )
 endforeach()
 
 include( CTest )
+
 add_test( RSFTest ${CMAKE_BINARY_DIR}/RSFTermTest
   ${RSFTest_SOURCE_DIR}/TestImage/ini2D.mhd
   ${RSFTest_SOURCE_DIR}/TestImage/ori2D.mhd

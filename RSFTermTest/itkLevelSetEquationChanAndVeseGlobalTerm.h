@@ -30,7 +30,7 @@ namespace itk
  *  \f[
  *   \delta_{\epsilon}\left( \phi_{k} \left( p \right) \right) \cdot
      \left\| I\left( p \right) - \mu_{in} \right\|^2 -     \delta_{\epsilon}\left( \phi_{k} \left( p \right) \right) \cdot
-     \left\| I\left( p \right) - \mu_{out} \right\|^2 
+     \left\| I\left( p \right) - \mu_{out} \right\|^2
  *  \cdot
  *  \f]
  *
@@ -121,7 +121,7 @@ public:
                               LevelSetOutputRealType& prod );
 
   virtual void ComputeProductExternal( const LevelSetInputIndexType& iP,
-	  LevelSetOutputRealType& prod );
+    LevelSetOutputRealType& prod );
 
   /** Compute the product of Heaviside functions in the multi-levelset cases
    *  except the current levelset */
@@ -130,7 +130,7 @@ public:
   {}
 
   virtual void ComputeProductTermExternal( const LevelSetInputIndexType& iP,
-	  LevelSetOutputRealType& prod );
+    LevelSetOutputRealType& prod );
 
   /** Supply updates at pixels to keep the term parameters always updated */
   virtual void UpdatePixel( const LevelSetInputIndexType& iP,
