@@ -194,14 +194,14 @@ LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
 	const InputPixelRealType intensity =
 		static_cast< const InputPixelRealType >( this->m_Input->GetPixel( iP ) );
 
-	const InputPixelRealType bluredForegroundMeanImage =
+	const InputPixelRealType bluredMeanImageValue =
 		static_cast< const InputPixelRealType >( bluredMeanImage->GetPixel( iP ) );
 
-	const InputPixelRealType bluredForegroundSquareMeanImage =
+	const InputPixelRealType bluredMeanSquareImageValue =
 		static_cast< const InputPixelRealType >( bluredMeanSquareImage->GetPixel( iP ) );
 
-	const InputPixelRealType e = intensity * intensity - 2. * bluredForegroundMeanImage * intensity
-		+ bluredForegroundSquareMeanImage;
+	const InputPixelRealType e = intensity * intensity - 2. * bluredMeanImageValue * intensity
+		+ bluredMeanSquareImageValue;
 
 	return e;
 
