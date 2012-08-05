@@ -83,21 +83,21 @@ void LevelSetEquationRSFTerm< TInput, TLevelSetContainer >
     {
       std::cout << err << std::endl;
     }
-	typename OutputWriterType::Pointer writerLevelSet= OutputWriterType::New();
-	std::ostringstream filenameLevelSet;
-	filenameLevelSet << "LevelSet" << currentIteration<<".mhd";
-	writerLevelSet->SetFileName(filenameLevelSet.str().c_str());
-	//writer->SetInput( binary);
-	writerLevelSet->SetInput( m_CurrentLevelSet);
+  typename OutputWriterType::Pointer writerLevelSet= OutputWriterType::New();
+  std::ostringstream filenameLevelSet;
+  filenameLevelSet << "LevelSet" << currentIteration<<".mhd";
+  writerLevelSet->SetFileName(filenameLevelSet.str().c_str());
+  //writer->SetInput( binary);
+  writerLevelSet->SetInput( m_CurrentLevelSet);
 
-	try
-	{
-		writerLevelSet->Update();
-	}
-	catch ( itk::ExceptionObject& err )
-	{
-		std::cout << err << std::endl;
-	}
+  try
+  {
+    writerLevelSet->Update();
+  }
+  catch ( itk::ExceptionObject& err )
+  {
+    std::cout << err << std::endl;
+  }
 
   }
 
@@ -109,27 +109,27 @@ currentIteration++;
 template< class TInput, class TLevelSetContainer >
 void LevelSetEquationRSFTerm< TInput, TLevelSetContainer >
 ::InitializeParameters()
-{ 
-	currentIteration=0;
-this->m_BackgroundMeanImage= InputImageType::New();
-this->m_ForegroundMeanImage= InputImageType::New();
-this->m_CurrentHeaviside=InputImageType::New();
-this->m_CurrentHeavisideInverse=InputImageType::New();
-this->m_BluredBackgroundMeanImage=InputImageType::New();
-this->m_BluredBackgroundSquareMeanImage=InputImageType::New();
-this->m_BluredForegroundMeanImage=InputImageType::New();
-this->m_BluredForegroundSquareMeanImage=InputImageType::New();
-this->m_CurrentLevelSet=InputImageType::New();
+{
+  currentIteration=0;
+  this->m_BackgroundMeanImage= InputImageType::New();
+  this->m_ForegroundMeanImage= InputImageType::New();
+  this->m_CurrentHeaviside=InputImageType::New();
+  this->m_CurrentHeavisideInverse=InputImageType::New();
+  this->m_BluredBackgroundMeanImage=InputImageType::New();
+  this->m_BluredBackgroundSquareMeanImage=InputImageType::New();
+  this->m_BluredForegroundMeanImage=InputImageType::New();
+  this->m_BluredForegroundSquareMeanImage=InputImageType::New();
+  this->m_CurrentLevelSet=InputImageType::New();
 
-GenerateImage( this->m_BackgroundMeanImage );
-GenerateImage( this->m_ForegroundMeanImage );
-GenerateImage( this->m_CurrentHeaviside );
-GenerateImage( this->m_CurrentHeavisideInverse );
-GenerateImage( this->m_BluredBackgroundSquareMeanImage );
-GenerateImage( this->m_BluredForegroundSquareMeanImage );
-GenerateImage( this->m_BluredForegroundMeanImage );
-GenerateImage( this->m_BluredBackgroundMeanImage );
-GenerateImage( this->m_CurrentLevelSet );
+  GenerateImage( this->m_BackgroundMeanImage );
+  GenerateImage( this->m_ForegroundMeanImage );
+  GenerateImage( this->m_CurrentHeaviside );
+  GenerateImage( this->m_CurrentHeavisideInverse );
+  GenerateImage( this->m_BluredBackgroundSquareMeanImage );
+  GenerateImage( this->m_BluredForegroundSquareMeanImage );
+  GenerateImage( this->m_BluredForegroundMeanImage );
+  GenerateImage( this->m_BluredBackgroundMeanImage );
+  GenerateImage( this->m_CurrentLevelSet );
   this->SetUp();
 }
 

@@ -102,7 +102,7 @@ public:
   itkSetMacro( GaussianBlurScale, InputPixelRealType );
   itkGetMacro( GaussianBlurScale, InputPixelRealType );
   itkSetMacro( StepForSavingIntermedialResult, InputPixelRealType );
-  itkGetMacro( StepForSavingIntermedialResult, InputPixelRealType ); 
+  itkGetMacro( StepForSavingIntermedialResult, InputPixelRealType );
   /*itkSetMacro( MeanInternal, InputPixelRealType );
   itkGetMacro( MeanInternal, InputPixelRealType );
   itkSetMacro( MeanExternal, InputPixelRealType );
@@ -123,14 +123,14 @@ public:
   //virtual void ComputeProductInternal( const LevelSetInputIndexType& iP,
    //                           LevelSetOutputRealType& prod );
  // virtual void ComputeProductExternal( const LevelSetInputIndexType& iP,
-	//  LevelSetOutputRealType& prod );
+  //  LevelSetOutputRealType& prod );
   /** Compute the product of Heaviside functions in the multi-levelset cases
    *  except the current levelset */
  // virtual void ComputeProductTermInternal( const LevelSetInputIndexType& ,
  //                                 LevelSetOutputRealType& )
 //  {}
  // virtual void ComputeProductTermExternal( const LevelSetInputIndexType& ,
-	//  LevelSetOutputRealType&  );
+  //  LevelSetOutputRealType&  );
 
   /** Supply updates at pixels to keep the term parameters always updated */
   virtual void UpdatePixel( const LevelSetInputIndexType& iP,
@@ -182,9 +182,9 @@ protected:
 //  LevelSetOutputRealType   m_ExternalCoefficient;
  //  LevelSetConverterPointer  m_LevelSetConverter;
      InputPixelRealType m_GaussianBlurScale;
-	 InputPixelRealType m_StepForSavingIntermedialResult;
+   InputPixelRealType m_StepForSavingIntermedialResult;
 
-	 InputPixelRealType   currentIteration;
+   InputPixelRealType   currentIteration;
 private:
   LevelSetEquationRSFTerm( const Self& ); // purposely not implemented
   void operator = ( const Self& ); // purposely not implemented

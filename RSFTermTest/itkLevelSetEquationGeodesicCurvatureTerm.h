@@ -89,9 +89,9 @@ public:
     virtual const InputImageType * GetPotentialImage() const
   { return m_PotentialImage.GetPointer(); }
   virtual void SetPotentialImage(const InputImageType *f)
-  {     
-	  m_PotentialImage=f;
-  
+  {
+    m_PotentialImage=f;
+
   }
   itkBooleanMacro( UseGeodesicCurvature, InputPixelRealType );
    void GetCurrentHeavisideImage();
@@ -127,8 +127,8 @@ protected:
   LevelSetOutputRealType m_StepForSavingIntermedialResult;
 
 private:
-	InputImagePointer     m_CurrentHeaviside;
-	InputImagePointer     m_CurrentLevelSet;
+  InputImagePointer     m_CurrentHeaviside;
+  InputImagePointer     m_CurrentLevelSet;
   LevelSetEquationGeodesicCurvatureTerm( const Self& ); // purposely not implemented
   typename InputImageType::ConstPointer m_PotentialImage;
   bool m_UseGeodesicCurvature;
