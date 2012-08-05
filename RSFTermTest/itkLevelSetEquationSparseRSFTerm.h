@@ -118,8 +118,8 @@ protected:
   
   /** Accumulate contribution to term parameters from a given pixel */
   void Accumulate( const InputPixelType& iPix, const LevelSetOutputRealType& iHIn, const LevelSetOutputRealType& iHEx );
-  InputPixelRealType CalculateVarianceForeground(const LevelSetInputIndexType& iP, const LevelSetOutputRealType& iData);
-  InputPixelRealType CalculateVarianceBackground(const LevelSetInputIndexType& iP, const LevelSetOutputRealType& iData);
+
+  InputPixelRealType CalculateVariance(const LevelSetInputIndexType& iP, const LevelSetOutputRealType& iData, InputImagePointer bluredMeanImage, InputImagePointer bluredMeanSquareImage);
   void GetCurrentHeavisideImage();
   void GenerateImage(InputImagePointer image);
   void UpdateMeanImage();

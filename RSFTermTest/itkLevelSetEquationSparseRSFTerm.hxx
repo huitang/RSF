@@ -130,8 +130,8 @@ LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
     this->ComputeProductTermInternal( iP, prodInternal );
     this->ComputeProductTermExternal( iP, prodExternal );
 
-    InputPixelType e1 = this->CalculateVarianceForeground(iP, prodInternal);
-    InputPixelType e2 = this->CalculateVarianceBackground(iP, prodExternal);
+	InputPixelType e1 = this->CalculateVariance(iP, prodInternal,this->m_BluredForegroundMeanImage,this->m_BluredForegroundSquareMeanImage);
+	InputPixelType e2 = this->CalculateVariance(iP, prodExternal,this->m_BluredBackgroundMeanImage,this->m_BluredBackgroundSquareMeanImage);
 
     const LevelSetOutputRealType oValue = d_val *
       static_cast< LevelSetOutputRealType >( prodInternal *this->m_InternalCoefficient*e1 +  prodExternal *this->m_ExternalCoefficient*e2);
@@ -162,8 +162,8 @@ LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
     this->ComputeProductTermInternal( iP, prodInternal ); // prodInternal = 1
     this->ComputeProductTermExternal( iP, prodExternal );
 
-    InputPixelType e1 = this->CalculateVarianceForeground(iP, prodInternal);
-    InputPixelType e2 = this->CalculateVarianceBackground(iP, prodExternal);
+	InputPixelType e1 = this->CalculateVariance(iP, prodInternal,this->m_BluredForegroundMeanImage,this->m_BluredForegroundSquareMeanImage);
+	InputPixelType e2 = this->CalculateVariance(iP, prodExternal,this->m_BluredBackgroundMeanImage,this->m_BluredBackgroundSquareMeanImage);
 
     const LevelSetOutputRealType oValue = d_val *
       static_cast< LevelSetOutputRealType >( prodInternal * this->m_InternalCoefficient * e1 +
@@ -186,48 +186,29 @@ void LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
 
 }
 
+
 template< class TInput, class TLevelSetContainer >
 typename LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >::InputPixelRealType
 LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
-::CalculateVarianceForeground(const LevelSetInputIndexType& iP, const LevelSetOutputRealType& iData)
+::CalculateVariance(const LevelSetInputIndexType& iP, const LevelSetOutputRealType& iData,  InputImagePointer bluredMeanImage, InputImagePointer bluredMeanSquareImage)
 {
-  //Here calculate e1, we assume that 1K =1 see Eq.16 in Li's paper in IEEE Image Processing 2008
-  const InputPixelRealType intensity =
-      static_cast< const InputPixelRealType >( this->m_Input->GetPixel( iP ) );
+	//Here calculate e1, we assume that 1K =1 see Eq.16 in Li's paper in IEEE Image Processing 2008
+	const InputPixelRealType intensity =
+		static_cast< const InputPixelRealType >( this->m_Input->GetPixel( iP ) );
 
-  const InputPixelRealType bluredForegroundMeanImage =
-      static_cast< const InputPixelRealType >( this->m_BluredForegroundMeanImage->GetPixel( iP ) );
+	const InputPixelRealType bluredForegroundMeanImage =
+		static_cast< const InputPixelRealType >( bluredMeanImage->GetPixel( iP ) );
 
-  const InputPixelRealType bluredForegroundSquareMeanImage =
-      static_cast< const InputPixelRealType >( this->m_BluredForegroundSquareMeanImage->GetPixel( iP ) );
+	const InputPixelRealType bluredForegroundSquareMeanImage =
+		static_cast< const InputPixelRealType >( bluredMeanSquareImage->GetPixel( iP ) );
 
-  const InputPixelRealType e = intensity * intensity - 2. * bluredForegroundMeanImage * intensity
-      + bluredForegroundSquareMeanImage;
+	const InputPixelRealType e = intensity * intensity - 2. * bluredForegroundMeanImage * intensity
+		+ bluredForegroundSquareMeanImage;
 
-  return e;
+	return e;
 
 }
-template< class TInput, class TLevelSetContainer >
-typename LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >::InputPixelRealType
-LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
-::CalculateVarianceBackground(const LevelSetInputIndexType& iP, const LevelSetOutputRealType& iData)
-{
-  //Here calculate e1, we assume that 1K =1 see Eq.16
-  const InputPixelRealType intensity =
-      static_cast< const InputPixelRealType >( this->m_Input->GetPixel( iP ) );
 
-  const InputPixelRealType bluredBackgroundMeanImage =
-      static_cast< const InputPixelRealType >( this->m_BluredBackgroundMeanImage->GetPixel( iP ) );
-
-  const InputPixelRealType bluredBackgroundSquareMeanImage =
-      static_cast< const InputPixelRealType >( this->m_BluredBackgroundSquareMeanImage->GetPixel( iP ) );
-
-  const InputPixelRealType e = intensity * intensity - 2. * bluredBackgroundMeanImage * intensity
-      + bluredBackgroundSquareMeanImage;
-
-  return e;
-
-}
 template< class TInput, class TLevelSetContainer >
 void LevelSetEquationSparseRSFTerm< TInput, TLevelSetContainer >
 ::GenerateImage(InputImagePointer ioImage )
