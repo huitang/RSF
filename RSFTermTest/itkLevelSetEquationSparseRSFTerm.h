@@ -120,6 +120,7 @@ protected:
   void Accumulate( const InputPixelType& iPix, const LevelSetOutputRealType& iHIn, const LevelSetOutputRealType& iHEx );
 
   InputPixelRealType CalculateVariance(const LevelSetInputIndexType& iP, const LevelSetOutputRealType& iData, InputImagePointer bluredMeanImage, InputImagePointer bluredMeanSquareImage);
+  void CalculateConvolutionOfUnitImageWithGaussian();
   void GetCurrentHeavisideImage();
   void GenerateImage(InputImagePointer image);
   void UpdateMeanImage();
@@ -133,6 +134,7 @@ protected:
   InputImagePointer    m_BluredForegroundMeanImage;
   InputImagePointer    m_CurrentInverseHeaviside;
   InputImagePointer    m_CurrentHeaviside;
+  InputImagePointer    m_ConvolutionOfUnitImageWithGaussian;
   InputImagePointer    m_CurrentLevelSet;
   InputPixelRealType   m_GaussianBlurScale;
 
