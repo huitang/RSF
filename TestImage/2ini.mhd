@@ -1,0 +1,13 @@
+ObjectType = Image
+NDims = 3
+BinaryData = True
+BinaryDataByteOrderMSB = False 
+CompressedData = False
+TransformMatrix = 1.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 1.0 
+Offset = 0.132291666667 0.132291666667 0.5
+CenterOfRotation = 0 0 0
+ElementNumberOfChannels = 1
+ElementSpacing = 0.264583333333 0.264583333333 1.0
+DimSize = 79 75 1
+ElementType = MET_FLOAT
+ElementDataFile = 2ini.raw
